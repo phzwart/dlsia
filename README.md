@@ -7,7 +7,7 @@
     <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
 
 
-dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a number of segmentation and denoising 
+dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a number of segmentation and denoising
 methods using convolution neural networks. The tools available are build for 
 microscopy and synchrotron-imaging/scattering data in mind, but can be used 
 elsewhere as well.
@@ -18,7 +18,7 @@ notebooks located in the dlsia/tutorials folder, or perform multi-class
 segmentation in Gaussian noise
 on `google colab <https://colab.research.google.com/drive/1ljMQ12UZ57FJjQ9CqG06PZo-bzOnY-UE?usp=sharing>`_
 
-## Install pyMSDtorch
+## Install dlsia
 
 We offer several methods for installation. 
 
