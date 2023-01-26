@@ -1,5 +1,5 @@
 setuptools>=62.2.0
-numpy==1.23.1
+numpy>=1.23
 torch>=1.11
 torchsummary>=1.5.1
 torchvision>=0.13
