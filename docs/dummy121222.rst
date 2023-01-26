@@ -1,0 +1,161 @@
+.. pyMSDtorch documentation master file, created by
+   sphinx-quickstart on Wed Aug 11 15:20:06 2021.
+   You can adapt this file completely to your liking, but it should at least
+   contain the root `toctree` directive.
+
+Welcome to pyMSDtorch's documentation!
+======================================
+
+pyMSDtorch provides easy access to a number of segmentation and denoising methods using
+convolution neural networks. The tools available are build for microscopy and
+synchrotron-imaging/scattering data in mind, but can be used elsewhere as well.
+
+The easiest way to start playing with the code is to install pyMSDtorch and perform
+denoising/segmenting using custom neural networks in our tutorial notebooks located in
+the pyMSDtorch/tutorials folder, or perform multi-class segmentation in Gaussian noise
+on `google colab <https://colab.research.google.com/drive/1ljMQ12UZ57FJjQ9CqG06PZo-bzOnY-UE?usp=sharing>`_
+
+Install pyMSDtorch
+==================
+
+To install pyMSDtorch, run these commands in a empty directory:
+
+Clone the public repository:
+
+.. code-block:: console
+
+    $ git clone https://bitbucket.org/berkeleylab/pymsdtorch.git
+
+Once you have a copy of the source, you can install it with:
+
+.. code-block:: console
+
+    $ cd pymsdtorch
+    $ pip install -e .
+
+
+Getting Started
+===============
+
+We start with some basic imports - we import a network and some training scripts:
+
+.. code-block:: python
+
+   from pymsdtorch.core.networks import MSDNet
+   from pymsdtorch.core import train_scripts
+
+A plain 3D MixedScaleNetwork is constructed as follows:
+
+.. code-block:: python
+
+   from torch import nn
+   netMSD3D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
+                                            out_channels=1,
+                                            num_layers=20,
+                                            max_dilation=10,
+                                            activation=nn.ReLU(),
+                                            normalization=nn.BatchNorm3d,
+                                            convolution=nn.Conv3d)
+
+The 2D network types can be build passing in equivalent kernels:
+
+.. code-block:: python
+
+   from torch import nn
+   netMSD2D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
+                                            out_channels=1,
+                                            num_layers=20,
+                                            max_dilation=10,
+                                            activation=nn.ReLU(),
+                                            normalization=nn.BatchNorm2d,
+                                            convolution=nn.Conv2d)
+
+
+The code also provides ways and means to build random, sparse mixed scale networks:
+
+.. code-block:: python
+
+   from pymsdtorch.core.networks import SMSNet
+   netSMS = SMSNet.random_SMS_network(in_channels=1,
+                                      out_channels=1,
+                                      layers=20,
+                                      dilation_choices=[1,2,4,8],
+                                      hidden_out_channels=[1,2,3])
+
+This network is sparser than a standard MSDNet. Controlling sparsity is possible, see full
+documentation for more details.
+
+
+An alternative network choice is to construct a UNet. Classic UNets can easely explode in
+the number of parameters it needs; here we make it a bit easier tunable:
+
+.. code-block:: python
+
+   from pymsdtorch.core.networks import TUNet
+   netTUNet = TUNet.TUNet(image_shape=(121,189),
+                          in_channels=1,
+                          out_channels=4,
+                          base_channels=4,
+                          depth=3,
+                          growth_rate=1.5)
+
+
+If your data loaders are constructed, the training of these networks is as simple as defining an
+optimizer, and calling the training script:
+
+.. code-block:: python
+
+   from torch import optim, nn
+   from pyMSDtorch.core import helpers
+
+   criterion = nn.CrossEntropyLoss()   # For segmenting
+   optimizer = optim.Adam(netTUNet.parameters(), lr=1e-2)
+
+   device = helpers.get_device()
+   netTUNet = netTUNet.to(device)
+   netTUNet, results = train_scripts.train_segmentation(net=netTUNet,
+                                               trainloader=train_loader,
+                                               validationloader=test_loader,
+                                               NUM_EPOCHS=epochs,
+                                               criterion=criterion,
+                                               optimizer=optimizer,
+                                               device=device,
+                                               show=1)
+
+The output of the training scripts is the trained network and a dictionairy with metrics.
+You can view them as follows:
+
+.. code-block:: python
+
+   from pyMSDtorch.viz_tools import plots
+   fig = plots.plot_training_results_segmentation(results)
+   fig.show()
+
+
+   tempTutorials/Segmentation_in_2d.ipynb
+   tempTutorials/Denoising_in_2d.ipynb
+
+
+
+License and Legal Stuff
+=======================
+
+This software has been developed from funds that originate from the US tax payer and is free for academics. Please have
+a look at the license agreement for more details. Commercial usage will require some extra steps. Please contact
+ipo@lbl.gov for more details.
+
+
+Final Thoughts
+==============
+
+This documentation is far from complete, but have some notebooks as part of the codebase, which could provide a good
+entry point.
+
+More to come!
+
+
+Indices and tables
+==================
+* :ref:`genindex`
+* :ref:`modindex`
+* :ref:`search`

@@ -1,0 +1,48 @@
+Metadata-Version: 2.1
+Name: dlsia
+Version: 0.2.0
+Summary: Python Boilerplate contains all the boilerplate you need to create a Python package.
+Home-page: https://github.com/phzwart/dlsia/
+Author: Petrus H. Zwart, Eric J. Roberts
+Author-email: PHZwart@lbl.gov, EJroberts@lbl.gov
+License: MIT License
+Keywords: dlsia
+Platform: UNKNOWN
+Classifier: Development Status :: 2 - Pre-Alpha
+Classifier: Intended Audience :: Developers
+Classifier: License :: OSI Approved :: MIT License
+Classifier: Natural Language :: English
+Classifier: Programming Language :: Python :: 3
+Classifier: Programming Language :: Python :: 3.5
+Classifier: Programming Language :: Python :: 3.6
+Classifier: Programming Language :: Python :: 3.7
+Classifier: Programming Language :: Python :: 3.8
+Requires-Python: >=3.8
+License-File: LICENSE
+License-File: AUTHORS.rst
+
+Welcome to dlsia's documentation!
+======================================
+
+dlsia provides easy access to a number of segmentation and denoising methods using convolution neural networks.
+The tools available are build for microscopy and synchrotron-imaging/scattering data in mind, but can be used elsewhere
+as well.
+
+The easiest way to start playing with the code is to install dlsia and perform denoising/segmenting using custom
+neural networks in our tutorial notebooks located in the dlsia/tutorials folder.
+
+Check the readthedocs page or the README.md file for more information.
+
+=======
+History
+=======
+
+0.2.0 (2023-01-26)
+------------------
+dlsia: Deep Learning for Scientific Image Analysis
+
+* First release - a rename of a previous project to better reflect name and scope.
+
+
+
+
