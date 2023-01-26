@@ -1,4 +1,4 @@
-<img src="docs/images/pymsdtorch.png" width=600 />
+<img src="docs/images/dlsia.png" width=600 />
 
 
 # Welcome to dlsia's documentation!
