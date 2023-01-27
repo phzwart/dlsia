@@ -25,3 +25,5 @@ papermill tutorial_supervised_denoising_2d.ipynb tutorial_supervised_denoising_2
 papermill tutorial_segmentation_MSDNet_TUNet_TUNet3plus.ipynb tutorial_segmentation_MSDNet_TUNet_TUNet3plus_out.ipynb -k $1
 papermill tutorial_ensemble_averaged_autoencoding_and_labeling.ipynb tutorial_ensemble_averaged_autoencoding_and_labeling_out.ipynb -k $1
 papermill tutorial_AutoEncode_and_Label.ipynb tutorial_AutoEncode_and_Label_out.ipynb -k $1
+papermill tutorial_saving_and_loading_networks tutorial_saving_and_loading_networks_out.ipynb -k $1
+
