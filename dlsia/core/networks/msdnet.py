@@ -70,12 +70,12 @@ class MixedScaleDenseNetwork(nn.Sequential):
     :param max_dilation: maximum dilation size the network will
                          cycle through
     :type max_dilation: int or None
-    :param custom_MSDNet: n by m numnpy array whose dimensions
+    :param custom_msdnet: n by m numnpy array whose dimensions
                           define the network topology (m number of
                           layers and n channels per layer) and
                           entries define the morphology (size of
                           dilated kernel at each channel)
-    :type custom_MSDNet: List[int]
+    :type custom_msdnet: List[int]
     :param activation: instance of PyTorch activation class applied
                        to each layer. If passing a list of
                        multiple activation class instances, each
@@ -118,7 +118,7 @@ class MixedScaleDenseNetwork(nn.Sequential):
         1)  to generate a network based on number of layers, channels,
             and the number of dilations to cycle through, pass integers
             in for num_layers, layer_width, and max_dilation
-            and leave custom_MSDNet = None
+            and leave custom_msdnet = None
                 ex) num_layers=5, layer_width=2, max_dilation=5
                     yields the network [1, 3, 5, 2, 4, 1
                                         2, 4, 1, 3, 5, 2]
@@ -145,7 +145,7 @@ class MixedScaleDenseNetwork(nn.Sequential):
                  num_layers=10,
                  layer_width=1,
                  max_dilation=10,
-                 custom_MSDNet=None,
+                 custom_msdnet=None,
                  activation=nn.ReLU(),
                  normalization=nn.BatchNorm2d,
                  final_layer=None,
@@ -165,12 +165,12 @@ class MixedScaleDenseNetwork(nn.Sequential):
         :param max_dilation: maximum dilation size the network will
                              cycle through
         :type max_dilation: int or None
-        :param custom_MSDNet: n by m numnpy array whose dimensions
+        :param custom_msdnet: n by m numnpy array whose dimensions
                               define the network topology (m number of
                               layers and n channels per layer) and
                               entries define the morphology (size of
                               dilated kernel at each channel)
-        :type custom_MSDNet: List[int]
+        :type custom_msdnet: List[int]
         :param activation: instance of PyTorch activation class applied
                            to each layer. If passing a list of
                            multiple activation class instances, each
@@ -214,7 +214,7 @@ class MixedScaleDenseNetwork(nn.Sequential):
         self.num_layers = num_layers
         self.layer_width = layer_width
         self.max_dilation = max_dilation
-        self.custom_MSDNet = custom_MSDNet
+        self.custom_msdnet = custom_msdnet
         self.activation = activation
         self.normalization = normalization
         self.final_layer = final_layer
@@ -235,22 +235,22 @@ class MixedScaleDenseNetwork(nn.Sequential):
         current_channels = self.in_channels
 
         # Retrieve number of layers if using a custom network
-        if self.custom_MSDNet is not None:
-            if self.custom_MSDNet.ndim == 1:
+        if self.custom_msdnet is not None:
+            if self.custom_msdnet.ndim == 1:
 
-                num_rep = int(np.ceil(self.num_layers / len(self.custom_MSDNet)))
-                self.custom_MSDNet = np.tile(self.custom_MSDNet, num_rep)
-                self.custom_MSDNet = self.custom_MSDNet[0:self.num_layers]
-                self.custom_MSDNet = self.custom_MSDNet.reshape(1,
-                                                                self.custom_MSDNet.shape[0])
+                num_rep = int(np.ceil(self.num_layers / len(self.custom_msdnet)))
+                self.custom_msdnet = np.tile(self.custom_msdnet, num_rep)
+                self.custom_msdnet = self.custom_msdnet[0:self.num_layers]
+                self.custom_msdnet = self.custom_msdnet.reshape(1,
+                                                                self.custom_msdnet.shape[0])
             else:
-                self.num_layers = self.custom_MSDNet.shape[1]
+                self.num_layers = self.custom_msdnet.shape[1]
 
         # Begin building layers using loop
         for i in range(self.num_layers):
 
-            if self.custom_MSDNet is not None:
-                dilations = self.custom_MSDNet[:, i]
+            if self.custom_msdnet is not None:
+                dilations = self.custom_msdnet[:, i]
             else:
                 dilations = [((i * self.layer_width + j) % self.max_dilation) +
                              1 for j in range(self.layer_width)]
@@ -310,7 +310,7 @@ class MixedScaleDenseNetwork(nn.Sequential):
         topo_dict["num_layers"] = self.num_layers
         topo_dict["layer_width"] = self.layer_width
         topo_dict["max_dilation"] = self.max_dilation
-        topo_dict["custom_MSDNet"] = self.custom_MSDNet
+        topo_dict["custom_msdnet"] = self.custom_msdnet
         topo_dict["activation"] = self.activation
         topo_dict["normalization"] = self.normalization
         topo_dict["final_layer"] = self.final_layer
@@ -388,7 +388,7 @@ def tst(show_network=True):
                                       layer_width=None,
                                       max_dilation=None,
                                       dropout=[.1, .2, .3],
-                                      custom_MSDNet=np.array([1, 2, 4, 8, 16])
+                                      custom_msdnet=np.array([1, 2, 4, 8, 16])
                                       )
 
     print('\n### Custom network ####')
