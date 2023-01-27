@@ -750,11 +750,11 @@ def autoencode_and_classify_training(net,
                 for param_group in minimizer_autoencode.param_groups:
                     learning_rates.append(param_group['lr'])
                 mean_learning_rate = np.mean(np.array(learning_rates))
-                if np.mod(overall_count, show) == 0:
+                if np.mod(epoch + 1, show) == 0:
                     print(
                         f'Epoch {epoch + 1:4d},  of {macro_epochs} >-*-< Mini Epoch  {mini_epoch + 1:4d} of {mini_epochs} >-*-< Learning rate {mean_learning_rate:4.3e}')
 
-                if np.mod(overall_count, show) == 0:
+                if np.mod(epoch + 1, show) == 0:
                     if mode == "autoencode":
                         print(f'** Autoencoding Losses **      <---- Now Optimizing')
                     else:
