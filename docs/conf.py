@@ -13,13 +13,13 @@
 import os
 import sys
 sys.path.insert(0, os.path.abspath('..'))
-sys.path.insert(0, os.path.abspath('../pyMSDtorch/tutorials'))
+sys.path.insert(0, os.path.abspath('../dlsia/tutorials'))
 #sys.path.insert(0, os.path.abspath('../..'))
 
 # -- Project information -----------------------------------------------------
 
-project = 'pyMSDtorch'
-copyright = '2021, Peter Zwart & Eric Roberts'
+project = 'dlsia'
+copyright = '2023, Peter Zwart & Eric Roberts'
 author = 'Peter Zwart & Eric Roberts'
 
 # The full version, including alpha/beta/rc tags
