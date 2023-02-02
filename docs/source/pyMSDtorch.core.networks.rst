@@ -1,69 +1,69 @@
-pyMSDtorch.core.networks package
+dlsia.core.networks package
 ================================
 
 Submodules
 ----------
 
-pyMSDtorch.core.networks.AggNet module
+dlsia.core.networks.AggNet module
 --------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.AggNet
+.. automodule:: dlsia.core.networks.AggNet
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.MSDNet module
+dlsia.core.networks.msdnet module
 --------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.MSDNet
+.. automodule:: dlsia.core.networks.msdnet
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.MSD\_graph\_tools module
+dlsia.core.networks.msd\_graph\_tools module
 -------------------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.MSD_graph_tools
+.. automodule:: dlsia.core.networks.msd_graph_tools
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.SMSNet module
+dlsia.core.networks.smsnet module
 --------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.SMSNet
+.. automodule:: dlsia.core.networks.smsnet
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.TUNet module
+dlsia.core.networks.tunet module
 -------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.TUNet
+.. automodule:: dlsia.core.networks.tunet
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.UNet module
+dlsia.core.networks.unet module
 ------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.UNet
+.. automodule:: dlsia.core.networks.unet
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.graph\_utils module
+dlsia.core.networks.graph\_utils module
 --------------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.graph_utils
+.. automodule:: dlsia.core.networks.graph_utils
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.networks.scale\_up\_down module
+dlsia.core.networks.scale\_up\_down module
 -----------------------------------------------
 
-.. automodule:: pyMSDtorch.core.networks.scale_up_down
+.. automodule:: dlsia.core.networks.scale_up_down
    :members:
    :undoc-members:
    :show-inheritance:
@@ -71,7 +71,7 @@ pyMSDtorch.core.networks.scale\_up\_down module
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch.core.networks
+.. automodule:: dlsia.core.networks
    :members:
    :undoc-members:
    :show-inheritance:

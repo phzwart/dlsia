@@ -1,61 +1,61 @@
-pyMSDtorch.test\_data.twoD package
+dlsia.test\_data.two_d package
 ==================================
 
 Submodules
 ----------
 
-pyMSDtorch.test\_data.twoD.build\_test\_data module
+dlsia.test\_data.two_d.build\_test\_data module
 ---------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.build_test_data
+.. automodule:: dlsia.test_data.two_d.build_test_data
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.diffusion\_model module
+dlsia.test\_data.two_d.diffusion\_model module
 --------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.diffusion_model
+.. automodule:: dlsia.test_data.two_d.diffusion_model
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.noisy\_gauss\_2d module
+dlsia.test\_data.two_d.noisy\_gauss\_2d module
 --------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.noisy_gauss_2d
+.. automodule:: dlsia.test_data.two_d.noisy_gauss_2d
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.noisy\_gauss\_2d\_time module
+dlsia.test\_data.two_d.noisy\_gauss\_2d\_time module
 --------------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.noisy_gauss_2d_time
+.. automodule:: dlsia.test_data.two_d.noisy_gauss_2d_time
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.random\_shapes module
+dlsia.test\_data.two_d.random\_shapes module
 ------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.random_shapes
+.. automodule:: dlsia.test_data.two_d.random_shapes
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.torch\_hdf5\_loader module
+dlsia.test\_data.two_d.torch\_hdf5\_loader module
 -----------------------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.torch_hdf5_loader
+.. automodule:: dlsia.test_data.two_d.torch_hdf5_loader
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.test\_data.twoD.tst module
+dlsia.test\_data.two_d.tst module
 -------------------------------------
 
-.. automodule:: pyMSDtorch.test_data.twoD.tst
+.. automodule:: dlsia.test_data.two_d.tst
    :members:
    :undoc-members:
    :show-inheritance:
@@ -63,7 +63,7 @@ pyMSDtorch.test\_data.twoD.tst module
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch.test_data.twoD
+.. automodule:: dlsia.test_data.two_d
    :members:
    :undoc-members:
    :show-inheritance:

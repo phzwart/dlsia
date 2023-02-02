@@ -1,4 +1,4 @@
-pyMSDtorch.test\_data package
+dlsia.test\_data package
 =============================
 
 Subpackages
@@ -7,12 +7,12 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pyMSDtorch.test_data.twoD
+   dlsia.test_data.two_d
 
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch.test_data
+.. automodule:: dlsia.test_data
    :members:
    :undoc-members:
    :show-inheritance:

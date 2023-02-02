@@ -1,4 +1,4 @@
-pyMSDtorch.core package
+dlsia.core package
 =======================
 
 Subpackages
@@ -7,39 +7,39 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pyMSDtorch.core.networks
+   dlsia.core.networks
 
 Submodules
 ----------
 
-pyMSDtorch.core.corcoef module
+dlsia.core.corcoef module
 ------------------------------
 
-.. automodule:: pyMSDtorch.core.corcoef
+.. automodule:: dlsia.core.corcoef
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.custom\_losses module
+dlsia.core.custom\_losses module
 -------------------------------------
 
-.. automodule:: pyMSDtorch.core.custom_losses
+.. automodule:: dlsia.core.custom_losses
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.helpers module
+dlsia.core.helpers module
 ------------------------------
 
-.. automodule:: pyMSDtorch.core.helpers
+.. automodule:: dlsia.core.helpers
    :members:
    :undoc-members:
    :show-inheritance:
 
-pyMSDtorch.core.train\_scripts module
+dlsia.core.train\_scripts module
 -------------------------------------
 
-.. automodule:: pyMSDtorch.core.train_scripts
+.. automodule:: dlsia.core.train_scripts
    :members:
    :undoc-members:
    :show-inheritance:
@@ -47,7 +47,7 @@ pyMSDtorch.core.train\_scripts module
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch.core
+.. automodule:: dlsia.core
    :members:
    :undoc-members:
    :show-inheritance:

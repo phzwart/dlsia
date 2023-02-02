@@ -1,4 +1,4 @@
-pyMSDtorch package
+dlsia package
 ==================
 
 Subpackages
@@ -7,14 +7,14 @@ Subpackages
 .. toctree::
    :maxdepth: 4
 
-   pyMSDtorch.core
-   pyMSDtorch.test_data
-   pyMSDtorch.viz_tools
+   dlsia.core
+   dlsia.test_data
+   dlsia.viz_tools
 
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch
+.. automodule:: dlsia
    :members:
    :undoc-members:
    :show-inheritance:

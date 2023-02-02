@@ -1,13 +1,13 @@
-pyMSDtorch.viz\_tools package
+dlsia.viz\_tools package
 =============================
 
 Submodules
 ----------
 
-pyMSDtorch.viz\_tools.plots module
+dlsia.viz\_tools.plots module
 ----------------------------------
 
-.. automodule:: pyMSDtorch.viz_tools.plots
+.. automodule:: dlsia.viz_tools.plots
    :members:
    :undoc-members:
    :show-inheritance:
@@ -15,7 +15,7 @@ pyMSDtorch.viz\_tools.plots module
 Module contents
 ---------------
 
-.. automodule:: pyMSDtorch.viz_tools
+.. automodule:: dlsia.viz_tools
    :members:
    :undoc-members:
    :show-inheritance:
