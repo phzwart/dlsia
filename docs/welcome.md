@@ -175,49 +175,25 @@ The output of the training scripts is the trained network and a dictionary with
 training losses and evaluationmetrics. You can view them as follows:
 
 ```python
-   from pyMSDtorch.viz_tools import plots
-   fig = plots.plot_training_results_segmentation(results)
-   fig.show()
+from pyMSDtorch.viz_tools import plots
+fig = plots.plot_training_results_segmentation(results)
+fig.show()
 
 ```
 
 # Saving and loading models
 
-Once a model is trained, PyTorch offers two methods for saving and loading 
-models for inference. We walk through these options using the TUNet class
-above.
-
-## Saving model weights (recommended)
-
-For the most flexibility in restoring models for later use, we save the model's
-learned weights and biases with to a specific path with:
+Each dlsia network library contains submodules for saving trained 
+networks and loading them from file. Using the conventional PyTorch ```.pt ``` 
+model file extension, the TUNet above may be saved with
 
 ```python
-torch.save(modelTUNet.state_dict(), PATH) .
+savepath = 'this_tunet.pt'
+tunet_model.save_network_parameters(savepath)
 ```
 
-A new TUNet model is then instantiated with the same architecture-governing 
-parameters (image_shape, in_channels,etc.) and the learned weights are mapped 
-back to the freshly-created model with:
+and reloaded for future use with
 
 ```python
-newTUNet = TUNet.TUNet(*args)
-newTUNet.load_state_dict(torch.load(PATH)) .
+copy_of_tunet = tunet.TUNetwork_from_file(savepath)
 ```
-
-## Saving the entire model
-
-Alternatively, the entire model may be saved (pickled) using
-
-```python
-torch.save(modelTUNet, PATH)
-```
-
-and loaded with
-
-```python
-newTUNet = torch.load(PATH) .
-```
-
-Though more intuitive, this method is more prone to breaking, especially when 
-modifying or truncating layers.
