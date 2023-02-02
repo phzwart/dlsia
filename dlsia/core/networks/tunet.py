@@ -175,7 +175,7 @@ class TUNet(nn.Module):
     image, with the number of output classes dictated by the out_channels
     parameter.
 
-    In this pyMSDtorch implementation, a number of architecture-governing
+    In this dlsia implementation, a number of architecture-governing
     hyperparameters may be tuned by the user, including the network depth,
     convolutional channel growth rate both within & between layers, and the
     normalization & activation operations following each convolution.
@@ -639,7 +639,7 @@ def tst():
     print(obj)
 
     from torchsummary import summary
-    from pyMSDtorch.core import helpers
+    from dlsia.core import helpers
     device = helpers.get_device()
     obj.to(device)
     summary(obj, (1, a, b))

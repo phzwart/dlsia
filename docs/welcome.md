@@ -1,4 +1,4 @@
-<img src="images/pymsdtorch.png" width=600 />
+<img src="_images/dlsia.png" width=600 />
 
 # Welcome to dlsia's documentation!
 
@@ -18,7 +18,7 @@ segmentation in Gaussian noise
 on `google colab <https://colab.research.google.
 com/drive/1ljMQ12UZ57FJjQ9CqG06PZo-bzOnY-UE?usp=sharing>`
 
-# Install pyMSDtorch
+# Install dlsia
 
 We offer several methods for installation. 
 
@@ -27,23 +27,23 @@ We offer several methods for installation.
 The latest stable release may be installed with:
 
 ```console
-$ pip install pymsdtorch .
+$ pip install dlsia
 ```
 
 ## From source
 
-pyMSDtorch may be directly downloaded and installed into your machine by 
+dlsia may be directly downloaded and installed into your machine by 
 cloning the public repository into an empty directory using:
 
 ```console
-$ git clone https://bitbucket.org/berkeleylab/pymsdtorch.git .
+$ git clone https://github.com/phzwart/dlsia.git
 ```
 
-Once cloned, move to the newly minted pymsdtorch directory and install 
-pyMSDtorch using:
+Once cloned, move to the newly minted dlsia directory and install 
+dlsia using:
 
 ```console
-$ cd pymsdtorch
+$ cd dlsia
 $ pip install -e .
 ```
 
@@ -53,12 +53,12 @@ To download only the tutorials in a new folder, use the following
 terminal input for a sparse git checkout:
 
 ```console
-$ mkdir pymsdtorchTutorials
-$ cd pymsdtorchTutorials
+$ mkdir dlsiaTutorials
+$ cd dlsiaTutorials
 $ git init
 $ git config core.sparseCheckout true
-$ git remote add -f origin https://bitbucket.org/berkeleylab/pymsdtorch.git
-$ echo "pyMSDtorch/tutorials/*" > .git/info/sparse-checkout
+$ git remote add -f https://github.com/phzwart/dlsia.git
+$ echo "dlsia/tutorials/*" > .git/info/sparse-checkout
 $ git checkout main
 ```
 
@@ -74,7 +74,7 @@ from dlsia.core import train_scripts
 
 ## Mixed-Scale dense networks (MSDNet)
 
-<img src="images/MSDNet_fig.png" width=600 />
+<img src="_images/MSDNet_fig.png" width=600 />
 
 
 A plain 2d mixed-scale dense network is constructed as follows:
@@ -108,10 +108,10 @@ netMSD3D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
 
 ## Sparse mixed-scale dense network (SMSNet)
 
-<img src="images/RMSNet_fig.png" width=600 />
+<img src="_images/RMSNet_fig.png" width=600 />
 
 
-The pyMSDtorch suite also provides ways and means to build random, sparse mixed 
+The dlsia suite also provides ways and means to build random, sparse mixed 
 scale networks. SMSNets contain more sparsely connected nodes than a standard 
 MSDNet and are useful to alleviate overfitting and multi-network aggregation. 
 Controlling sparsity is possible, see full documentation for more details.
@@ -128,7 +128,7 @@ netSMS = smsnet.random_SMS_network(in_channels=1,
 ```
 ## Tunable U-Nets
 
-<img src="images/UNet_fig.png" width=600 />
+<img src="_images/UNet_fig.png" width=600 />
 
 An alternative network choice is to construct a UNet. Classic U-Nets can easily 
 explode in the number of parameters it requires; here we make it a bit easier 
@@ -153,7 +153,7 @@ simple as defining a torch.nn optimizer, and calling the training script:
 
 ```python
 from torch import optim, nn
-from pyMSDtorch.core import helpers
+from dlsia.core import helpers
 
 criterion = nn.CrossEntropyLoss()   # For segmenting
 optimizer = optim.Adam(netTUNet.parameters(), lr=1e-2)
@@ -175,7 +175,7 @@ The output of the training scripts is the trained network and a dictionary with
 training losses and evaluationmetrics. You can view them as follows:
 
 ```python
-from pyMSDtorch.viz_tools import plots
+from dlsia.viz_tools import plots
 fig = plots.plot_training_results_segmentation(results)
 fig.show()
 

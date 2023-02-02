@@ -280,7 +280,7 @@ class TUNet3Plus(nn.Module):
     with dense skip connections aggregating features from all network layers,
     thus encouraging more multi-scale learning of features
 
-    In this pyMSDtorch implementation, a number of architecture-governing
+    In this dlsia implementation, a number of architecture-governing
     hyperparameters may be tuned by the user, including the network depth,
     the number of convolutional channels carried over in each individual
     skip connection, convolutional channel growth rate both within & between

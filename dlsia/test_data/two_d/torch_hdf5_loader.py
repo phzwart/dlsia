@@ -11,7 +11,7 @@ os.environ['KMP_DUPLICATE_LIB_OK'] = 'True'
 class Hdf5Dataset2D(data.Dataset):
     """
     A pytorch compatible dataset object with input and output based on a single
-    hdf5 file. To be used in tandem with the pyMSDtorch 2d data generators
+    hdf5 file. To be used in tandem with the dlsia 2d data generators
     """
 
     def __init__(self, filename, x_label, y_label, transform=None, max_size=None):
