@@ -23,6 +23,7 @@ def set_size(conformal_set):
 def has_label_in_set(conformal_set, label):
     """
     Checks if a conformal set contains a specific label
+
     :param conformal_set: The conformal set
     :type conformal_set: torch.Tensor, type bool (N,C, ...)
     :param label: the label of interest
@@ -56,6 +57,7 @@ conformal_set_metrics = {'size': set_size, 'has': has_label_in_set, 'has_not': d
 def index_it(scores, labs):
     """
     index the scores
+
     :param scores: scores
     :type scores:
     :param labs: labels
@@ -97,6 +99,7 @@ class conformalize_classification(nn.Module):
                  ):
         """
         Build a conformalizing object.
+
         :param alpha: The power of the test / level of confidence interval
         :type alpha: float
         :param estimated_label_probabilities: estimated probabilities from softmax
@@ -113,6 +116,7 @@ class conformalize_classification(nn.Module):
     def recalibrate(self, alpha=None):
         """
         Reset thresholds such that a new confidence limit is returned
+
         :param alpha: The power of the test / level of confidence interval
         :type alpha: float
         :return: qhat, the score threshold
