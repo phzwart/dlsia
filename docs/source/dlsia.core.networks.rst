@@ -28,14 +28,6 @@ dlsia.core.networks.msdnet module
    :undoc-members:
    :show-inheritance:
 
-dlsia.core.networks.msae module
---------------------------------------
-
-.. automodule:: dlsia.core.networks.msae
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dlsia.core.networks.msd\_graph\_tools module
 -------------------------------------------------
 
