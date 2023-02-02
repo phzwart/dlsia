@@ -48,7 +48,7 @@ dlsia.core.train\_scripts module
 dlsia.core.inference\_scripts module
 -------------------------------------
 
-.. automodule:: dlsia.core.inference
+.. automodule:: dlsia.core.inference_scripts
    :members:
    :undoc-members:
    :show-inheritance:
