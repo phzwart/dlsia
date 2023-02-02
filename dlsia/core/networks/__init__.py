@@ -1,7 +1,7 @@
 """
 All dlsia models
 """
-from . import AggNet, msdnet, tunet, smsnet, sparsenet
+from . import aggnet, msdnet, tunet, tunet3plus,  smsnet, sparsenet
 
 __all__ = ['aggnet',
            'msdnet.py',

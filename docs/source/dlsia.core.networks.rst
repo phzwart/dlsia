@@ -76,14 +76,6 @@ dlsia.core.networks.tunet3plus module
    :undoc-members:
    :show-inheritance:
 
-dlsia.core.networks.unet module
-------------------------------------
-
-.. automodule:: dlsia.core.networks.unet
-   :members:
-   :undoc-members:
-   :show-inheritance:
-
 dlsia.core.networks.graph\_utils module
 --------------------------------------------
 
