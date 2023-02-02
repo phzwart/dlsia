@@ -47,7 +47,7 @@ Tutorials
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Basics: Segmentation Workflow and Saving/Loading Models
+   :caption: Basic dlsia Workflows
 
    tutorialLinks/segmentation_MSDNet_TUNet_TUNet3plus
    tutorialLinks/saving_loading_networks
@@ -62,7 +62,7 @@ Tutorials
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Denoising with MSDNet & TUNet Demo:
+   :caption: Image Denoising
 
    tutorialLinks/denoising_MSDNet_SMSNetEnsemble
    tutorialLinks/denoising_selfSupervised
@@ -70,8 +70,7 @@ Tutorials
 .. toctree::
    :glob:
    :maxdepth: 1
-   :caption: Image classification with SMSNets Ensembling and SMSNet
-Autoencoders
+   :caption: Image Classification
 
    tutorialLinks/imageClassification_SMSNetEnsemble
    tutorialLinks/imageClassification_SMSNetAutoencoderEnsemble

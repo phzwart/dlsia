@@ -521,11 +521,13 @@ class SMSNet(nn.Module):
 
                 if from_here == 0:
                     self.add_module('Edge_%s_%s' % (from_here, to_there),
-                                    Linear(these_in_channels,
-                                           those_out_channels,
-                                           stride=(scales_W1[0], scales_H1[0]),
-                                           output_padding=(scales_W1[1], scales_H1[1]),
-                                           bias=False))
+                                    Conv2DReLU(these_in_channels,
+                                               those_out_channels,
+                                               self.convolution_kernel_size,
+                                               1,
+                                                stride=(scales_W1[0], scales_H1[0]),
+                                                output_padding=(scales_W1[1], scales_H1[1])
+                                               ))
                 else:
                     if to_there == last_node:
                         self.add_module('Edge_%s_%s' % (from_here, to_there),
@@ -772,8 +774,8 @@ def random_SMS_network(in_channels,
                           mode=dilation_mode)
     # Assign output channels to each edge
     in_channel_choices = [in_channels]
-    for this_one in hidden_out_channels:
-        in_channel_choices.append(in_channels + this_one)
+    #for this_one in hidden_out_channels:
+    #    in_channel_choices.append(in_channels + this_one)
 
     G, NodeCount = buildSMSnodechannels(G,
                                         in_channels,
