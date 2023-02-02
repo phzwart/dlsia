@@ -1,4 +1,4 @@
-<img src="_images/dlsia.png" width=600 />
+<img src="images/dlsia.png" width=600 />
 
 # Welcome to dlsia's documentation!
 
@@ -74,7 +74,7 @@ from dlsia.core import train_scripts
 
 ## Mixed-Scale dense networks (MSDNet)
 
-<img src="_images/MSDNet_fig.png" width=600 />
+<img src="images/MSDNet_fig.png" width=600 />
 
 
 A plain 2d mixed-scale dense network is constructed as follows:
