@@ -3,7 +3,6 @@
    least contain the root `toctree` directive.
 
 .. image:: images/dlsia.png
-   :width:: 600
 
 dlsia documentation
 ========================
