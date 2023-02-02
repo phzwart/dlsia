@@ -4,10 +4,10 @@ dlsia.core.networks package
 Submodules
 ----------
 
-dlsia.core.networks.AggNet module
+dlsia.core.networks.aggnet module
 --------------------------------------
 
-.. automodule:: dlsia.core.networks.AggNet
+.. automodule:: dlsia.core.networks.aggnet
    :members:
    :undoc-members:
    :show-inheritance:

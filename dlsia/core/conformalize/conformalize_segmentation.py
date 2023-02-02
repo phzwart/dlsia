@@ -6,7 +6,8 @@ from torch import nn
 
 def set_size(conformal_set):
     """
-    Compute the size of the conformal set, i.e. how many elements are in the set.
+    Compute the size of the conformal set, i.e. how many elements are in the
+    set.
     The shape of the conformal_set tensor should be (N C ...), we count the number of elements
     in channel 1.
     The conformal set is an indicator array, i.e. it contains True / False for each class.

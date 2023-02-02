@@ -80,7 +80,7 @@ class DataMaker(object):
         :param noise_base: the base noise level (mean of gauss)
         :param mask_radius: The mask radius for ground_truth mask building
         :param normalize: scales noisy array
-                        -if linear_scale, linearly scales to interval [-1,1]
+                          -if linear_scale, linearly scales to interval [-1,1]
 
         :return: ground truth image, mask and noisy images, class images
         """
@@ -147,6 +147,7 @@ class MixedNoiseDataMaker(object):
         Set the brackets of the peak signal to noise levels for each peak.
 
         :param snr_brackets: An array of psnr values.
+
         :return: void.
         """
         if snr_brackets is None:
