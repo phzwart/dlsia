@@ -1,5 +1,4 @@
-<img src="images/dlsia.png" width=600 />
-
+![logo](images/dlsia.png 'the logo')
 # Welcome to dlsia's documentation!
 
 <a style="text-decoration:none !important;" href="https://dlsia.readthedocs.io/en/latest/" alt="website"><img src="https://img.shields.io/readthedocs/dlsia" /></a>
