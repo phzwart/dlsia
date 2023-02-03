@@ -3,6 +3,9 @@
 
 <a style="text-decoration:none !important;" href="https://dlsia.readthedocs.io/en/latest/" alt="website"><img src="https://img.shields.io/readthedocs/dlsia" /></a>
 <a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+<a style="text-decoration:none !important;" href="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" alt="License"><img src="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" /></a>
+![GitHub contributors](https://img.shields.io/github/contributors/phzwart/dlsia)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/phzwart/dlsia)
 
 
 dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a number of segmentation and denoising
@@ -72,7 +75,7 @@ from dlsia.core import train_scripts
 
 ## Mixed-Scale dense networks (MSDNet)
 
-<img src="images/MSDNet_fig.png" width=600 />
+![msdnet](images/MSDNet_fig.png 'msdnet fig')
 
 
 A plain 2d mixed-scale dense network is constructed as follows:
@@ -104,7 +107,7 @@ msdnet3d_model = msdnet.MixedScaleDenseNetwork(in_channels=1,
 
 ## Sparse mixed-scale dense network (SMSNet)
 
-<img src="_images/RMSNet_fig.png" width=600 />
+![smsnet](images/RMSNet_fig.png 'smsnet fig')
 
 
 The dlsia suite also provides ways and means to build random, sparse mixed 
@@ -124,7 +127,7 @@ smsnet_model = smsnet.random_SMS_network(in_channels=1,
 ```
 ## Tunable U-Nets
 
-<img src="_images/UNet_fig.png" width=600 />
+![tunet](images/UNet_fig.png 'tunet fig')
 
 An alternative network choice is to construct a UNet. Classic U-Nets can easily 
 explode in the number of parameters it requires; here we make it a bit easier 

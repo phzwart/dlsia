@@ -5,7 +5,7 @@
 .. image:: images/dlsia.png
 
 dlsia documentation
-========================
+===================
 
 Welcome to the dlsia documentation, a collection of routines for machine
 learning in scientific imaging. dlsia offers a friendly API for the easy
