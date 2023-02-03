@@ -16,14 +16,13 @@
 #
 # This will take some time to run all. You can inspect all results with jupyter
 #
-papermill tutorial_ensemble_labeling.ipynb tutorial_ensemble_labeling_out.ipynb -k $1
-papermill tutorial_AutoEncode_SMS.ipynb tutorial_AutoEncode_SMS_out.ipynb -k $1
-papermill tutorial_self_supervised_denoising.ipynb tutorial_self_supervised_denoising_out.ipynb -k $1
-papermill tutorial_semantic_segmentation.ipynb tutorial_semantic_segmentation_out.ipynb -k $1
-papermill tutorial_randomized_sparse_mixed_scale_networks.ipynb tutorial_randomized_sparse_mixed_scale_networks_out.ipynb -k $1
-papermill tutorial_supervised_denoising_2d.ipynb tutorial_supervised_denoising_2d_out.ipynb -k $1
-papermill tutorial_segmentation_MSDNet_TUNet_TUNet3plus.ipynb tutorial_segmentation_MSDNet_TUNet_TUNet3plus_out.ipynb -k $1
-papermill tutorial_ensemble_averaged_autoencoding_and_labeling.ipynb tutorial_ensemble_averaged_autoencoding_and_labeling_out.ipynb -k $1
-papermill tutorial_AutoEncode_and_Label.ipynb tutorial_AutoEncode_and_Label_out.ipynb -k $1
-papermill tutorial_saving_and_loading_networks tutorial_saving_and_loading_networks_out.ipynb -k $1
+papermill denoising_MSDNet_SMSNetEnsemble.ipynb denoising_MSDNet_SMSNetEnsemble.ipynb -k $1
+papermill denoising_selfSupervised.ipynb denoising_selfSupervised.ipynb -k $1
+papermill ensembleLearning_SMSNets.ipynb ensembleLearning_SMSNets.ipynb -k $1
+papermill imageClassification_SMSNetAutoencoderEnsemble.ipynb imageClassification_SMSNetAutoencoderEnsemble.ipynb -k $1
+papermill imageClassification_SMSNetEnsemble.ipynb imageClassification_SMSNetEnsemble.ipynb -k $1
+papermill latentSpaceExploration_SMSNetAutoencoders.ipynb latentSpaceExploration_SMSNetAutoencoders.ipynb -k $1
+papermill saving_loading_networks.ipynb saving_loading_networks.ipynb -k $1
+papermill segmentation_MSDNet_TUNet_TUNet3plus.ipynb segmentation_MSDNet_TUNet_TUNet3plus.ipynb -k $1
+
 

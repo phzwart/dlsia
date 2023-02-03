@@ -1,4 +1,4 @@
-<img src="images/pymsdtorch.png" width=600 />
+<img src="images/dlsia.png" width=600 />
 
 # Welcome to dlsia's documentation!
 
@@ -17,7 +17,7 @@ notebooks located in the dlsia/tutorials folder, or perform multi-class
 segmentation in Gaussian noise
 on [google colab](https://colab.research.google.com/drive/1ljMQ12UZ57FJjQ9CqG06PZo-bzOnY-UE?usp=sharing).
 
-# Install pyMSDtorch
+# Install dlsia
 
 We offer several methods for installation. 
 
@@ -26,23 +26,23 @@ We offer several methods for installation.
 The latest stable release may be installed with:
 
 ```console
-$ pip install pymsdtorch .
+$ pip install dlsia
 ```
 
 ## From source
 
-pyMSDtorch may be directly downloaded and installed into your machine by 
+dlsia may be directly downloaded and installed into your machine by 
 cloning the public repository into an empty directory using:
 
 ```console
-$ git clone https://bitbucket.org/berkeleylab/pymsdtorch.git .
+$ git clone https://github.com/phzwart/dlsia.git
 ```
 
-Once cloned, move to the newly minted pymsdtorch directory and install 
-pyMSDtorch using:
+Once cloned, move to the newly minted dlsia directory and install 
+dlsia using:
 
 ```console
-$ cd pymsdtorch
+$ cd dlsia
 $ pip install -e .
 ```
 
@@ -52,12 +52,12 @@ To download only the tutorials in a new folder, use the following
 terminal input for a sparse git checkout:
 
 ```console
-$ mkdir pymsdtorchTutorials
-$ cd pymsdtorchTutorials
+$ mkdir dlsiaTutorials
+$ cd dlsiaTutorials
 $ git init
 $ git config core.sparseCheckout true
-$ git remote add -f origin https://bitbucket.org/berkeleylab/pymsdtorch.git
-$ echo "pyMSDtorch/tutorials/*" > .git/info/sparse-checkout
+$ git remote add -f https://github.com/phzwart/dlsia.git
+$ echo "dlsia/tutorials/*" > .git/info/sparse-checkout
 $ git checkout main
 ```
 
@@ -107,10 +107,10 @@ netMSD3D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
 
 ## Sparse mixed-scale dense network (SMSNet)
 
-<img src="images/RMSNet_fig.png" width=600 />
+<img src="_images/RMSNet_fig.png" width=600 />
 
 
-The pyMSDtorch suite also provides ways and means to build random, sparse mixed 
+The dlsia suite also provides ways and means to build random, sparse mixed 
 scale networks. SMSNets contain more sparsely connected nodes than a standard 
 MSDNet and are useful to alleviate overfitting and multi-network aggregation. 
 Controlling sparsity is possible, see full documentation for more details.
@@ -127,7 +127,7 @@ netSMS = smsnet.random_SMS_network(in_channels=1,
 ```
 ## Tunable U-Nets
 
-<img src="images/UNet_fig.png" width=600 />
+<img src="_images/UNet_fig.png" width=600 />
 
 An alternative network choice is to construct a UNet. Classic U-Nets can easily 
 explode in the number of parameters it requires; here we make it a bit easier 
@@ -152,7 +152,7 @@ simple as defining a torch.nn optimizer, and calling the training script:
 
 ```python
 from torch import optim, nn
-from pyMSDtorch.core import helpers
+from dlsia.core import helpers
 
 criterion = nn.CrossEntropyLoss()   # For segmenting
 optimizer = optim.Adam(netTUNet.parameters(), lr=1e-2)
@@ -174,49 +174,25 @@ The output of the training scripts is the trained network and a dictionary with
 training losses and evaluationmetrics. You can view them as follows:
 
 ```python
-   from pyMSDtorch.viz_tools import plots
-   fig = plots.plot_training_results_segmentation(results)
-   fig.show()
+from dlsia.viz_tools import plots
+fig = plots.plot_training_results_segmentation(results)
+fig.show()
 
 ```
 
 # Saving and loading models
 
-Once a model is trained, PyTorch offers two methods for saving and loading 
-models for inference. We walk through these options using the TUNet class
-above.
-
-## Saving model weights (recommended)
-
-For the most flexibility in restoring models for later use, we save the model's
-learned weights and biases with to a specific path with:
+Each dlsia network library contains submodules for saving trained 
+networks and loading them from file. Using the conventional PyTorch ```.pt ``` 
+model file extension, the TUNet above may be saved with
 
 ```python
-torch.save(modelTUNet.state_dict(), PATH) .
+savepath = 'this_tunet.pt'
+tunet_model.save_network_parameters(savepath)
 ```
 
-A new TUNet model is then instantiated with the same architecture-governing 
-parameters (image_shape, in_channels,etc.) and the learned weights are mapped 
-back to the freshly-created model with:
+and reloaded for future use with
 
 ```python
-newTUNet = TUNet.TUNet(*args)
-newTUNet.load_state_dict(torch.load(PATH)) .
+copy_of_tunet = tunet.TUNetwork_from_file(savepath)
 ```
-
-## Saving the entire model
-
-Alternatively, the entire model may be saved (pickled) using
-
-```python
-torch.save(modelTUNet, PATH)
-```
-
-and loaded with
-
-```python
-newTUNet = torch.load(PATH) .
-```
-
-Though more intuitive, this method is more prone to breaking, especially when 
-modifying or truncating layers.

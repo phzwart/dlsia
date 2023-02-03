@@ -1,4 +1,4 @@
 {
   "path": "../../dlsia/tutorials/imageClassification_SMSNetEnsemble.ipynb",
-  "extra-media": ["../images"]
+  "extra-media": ["images/"]
 }
