@@ -61,7 +61,7 @@ $ echo "dlsia/tutorials/*" > .git/info/sparse-checkout
 $ git checkout main
 ```
 
-# Network Initialization
+# Network initialization
 
 We start with some basic imports - we import a network and some training 
 scripts:
@@ -79,14 +79,12 @@ from dlsia.core import train_scripts
 A plain 2d mixed-scale dense network is constructed as follows:
 
 ```python
-from torch import nn
-netMSD2D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
-                                        out_channels=1,
-                                        num_layers=20,
-                                        max_dilation=10,
-                                        activation=nn.ReLU(),
-                                        normalization=nn.BatchNorm2d,
-                                        convolution=nn.Conv2d)
+from dlsia.core.networks import msdnet
+
+msdnet2d_model = msdnet.MixedScaleDenseNetwork(in_channels=1,
+                                               out_channels=1,
+                                               num_layers=20,
+                                               max_dilation=10)
 
 ```
 
@@ -95,13 +93,13 @@ kernels:
 
 ```python
 from torch import nn
-netMSD3D = MSDNet.MixedScaleDenseNetwork(in_channels=1,
-                                        out_channels=1,
-                                        num_layers=20,
-                                        max_dilation=10,
-                                        activation=nn.ReLU(),
-                                        normalization=nn.BatchNorm3d,
-                                        convolution=nn.Conv3d)
+
+msdnet3d_model = msdnet.MixedScaleDenseNetwork(in_channels=1,
+                                               out_channels=1,
+                                               num_layers=20,
+                                               max_dilation=10,
+                                               normalization=nn.BatchNorm3d,
+                                               convolution=nn.Conv3d)
 
 ```
 
@@ -118,11 +116,11 @@ Controlling sparsity is possible, see full documentation for more details.
 ```python
 from dlsia.core.networks import smsnet
 
-netSMS = smsnet.random_SMS_network(in_channels=1,
-                                   out_channels=1,
-                                   layers=20,
-                                   dilation_choices=[1, 2, 4, 8],
-                                   hidden_out_channels=[1, 2, 3])
+smsnet_model = smsnet.random_SMS_network(in_channels=1,
+                                         out_channels=1,
+                                         layers=20,
+                                         dilation_choices=[1, 2, 4, 8],
+                                         hidden_out_channels=[1, 2, 3])
 
 ```
 ## Tunable U-Nets
@@ -136,45 +134,70 @@ to tune desired architecture-governing parameters:
 ```python
 from dlsia.core.networks import tunet
 
-netTUNet = tunet.TUNet(image_shape=(121, 189),
-                       in_channels=1,
-                       out_channels=4,
-                       base_channels=4,
-                       depth=3,
-                       growth_rate=1.5)
+tunet_model = tunet.TUNet(image_shape=(64, 128),
+                          in_channels=1,
+                          out_channels=4,
+                          base_channels=4,
+                          depth=3,
+                          growth_rate=1.5)
 
 ```
 
 # Training
+
+## Data preparation
+
+To prep data for training, we make liberal use of PyTorch DataLoader 
+classes. This allows for easy handling of data in the training process and 
+automates the iterative loading of batch sizes.
+
+In the example below, we take pair two numpy arrays of shape ```[num_images, 
+num_channels, x_size, y_size]``` consisting of training images and masks, convert 
+them into PyTorch tensors, then initialize the DataLoader class.
+
+```python
+from torch.utils.data import TensorDataset, DataLoader
+
+train_data = TensorDataset(torch.Tensor(training_imgs), 
+                           torch.Tensor(training_masks))
+
+train_loader_params = {'batch_size': 20,
+                       'shuffle': True}
+
+train_loader = DataLoader(train_data, **train_loader_params)
+```
+
+## Training loop
 
 If your data loaders are constructed, the training of these networks is as 
 simple as defining a torch.nn optimizer, and calling the training script:
 
 ```python
 from torch import optim, nn
-from dlsia.core import helpers
+from dlsia.core import helpers, train_scripts
 
 criterion = nn.CrossEntropyLoss()   # For segmenting
-optimizer = optim.Adam(netTUNet.parameters(), lr=1e-2)
+optimizer = optim.Adam(tunet_model.parameters(), lr=1e-2)
 
 device = helpers.get_device()
-netTUNet = netTUNet.to(device)
-netTUNet, results = train_scripts.train_segmentation(net=netTUNet,
-                                           trainloader=train_loader,
-                                           validationloader=test_loader,
-                                           NUM_EPOCHS=epochs,
-                                           criterion=criterion,
-                                           optimizer=optimizer,
-                                           device=device,
-                                           show=1)
+tunet_model = tunet_model.to(device)
+tunet_model, results = train_scripts.train_segmentation(net=tunet_model,
+                                                        trainloader=train_loader,
+                                                        validationloader=test_loader,
+                                                        NUM_EPOCHS=epochs, 
+                                                        criterion=criterion,
+                                                        optimizer=optimizer,
+                                                        device=device,
+                                                        show=1)
 
 ```
 
 The output of the training scripts is the trained network and a dictionary with 
-training losses and evaluationmetrics. You can view them as follows:
+training losses and evaluation metrics. You can view them as follows:
 
 ```python
 from dlsia.viz_tools import plots
+
 fig = plots.plot_training_results_segmentation(results)
 fig.show()
 
@@ -194,5 +217,5 @@ tunet_model.save_network_parameters(savepath)
 and reloaded for future use with
 
 ```python
-copy_of_tunet = tunet.TUNetwork_from_file(savepath)
+copy_of_tunet = tunet_model.TUNetwork_from_file(savepath)
 ```

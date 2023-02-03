@@ -83,7 +83,8 @@ from dlsia.core import train_scripts
 A plain 2d mixed-scale dense network is constructed as follows:
 
 ```python
-from torch import nn
+from dlsia.core.networks import msdnet
+
 msdnet_model = msdnet.MixedScaleDenseNetwork(in_channels=1,
                                              out_channels=1,
                                              num_layers=20,
@@ -94,7 +95,9 @@ while 3d network types for volumetric images can be built passing in equivalent
 kernels for 3 dimensions:
 
 ```python
+import torch
 from torch import nn
+
 msdnet3d_model = msdnet.MixedScaleDenseNetwork(in_channels=1,
                                                out_channels=1,
                                                num_layers=20,
@@ -150,17 +153,20 @@ tunet_model = tunet.TUNet(image_shape=(64, 128),
                           growth_rate=1.5)
 ```
 
-## Data preparation
+## Training
+
+### Data preparation
 
 To prep data for training, we make liberal use of PyTorch DataLoader 
 classes. This allows for easy handling of data in the training process and 
 automates the iterative loading of batch sizes.
 
-In the example below, we take two numpy arrays consisting of training 
-images and masks, pair and convert them into PyTorch tensors, then initialize 
-the DataLoader class:
+In the example below, we take pair two numpy arrays of shape ```[num_images, 
+num_channels, x_size, y_size]``` consisting of training images and masks, convert 
+them into PyTorch tensors, then initialize the DataLoader class.
 
 ```python
+import torch
 from torch.utils.data import TensorDataset, DataLoader
 
 train_data = TensorDataset(torch.Tensor(training_imgs), 
@@ -172,15 +178,14 @@ train_loader_params = {'batch_size': 20,
 train_loader = DataLoader(train_data, **train_loader_params)
 ```
 
-## Training
+### Training lopp
 
 Once your DataLoaders are constructed, the training of these networks is as 
 simple as defining a torch.nn optimizer, and calling the training script:
 
 ```python
 from torch import optim, nn
-from dlsia.core import helpers
-from dlsia.core import helpers
+from dlsia.core import helpers, train_scripts
 
 criterion = nn.CrossEntropyLoss()   # For segmenting
 optimizer = optim.Adam(tunet_model.parameters(), lr=1e-2)
@@ -188,21 +193,22 @@ optimizer = optim.Adam(tunet_model.parameters(), lr=1e-2)
 device = helpers.get_device()
 tunet_model = tunet_model.to(device)
 
-tunet_model, results = tunet_model.train_segmentation(net=tunet_model,
-                                                      trainloader=train_loader,
-                                                      validationloader=test_loader,
-                                                      NUM_EPOCHS=epochs,
-                                                      criterion=criterion,
-                                                      optimizer=optimizer,
-                                                      device=device,
-                                                      show=1)
+tunet_model, results = train_scripts.train_segmentation(net=tunet_model,
+                                                        trainloader=train_loader,
+                                                        validationloader=test_loader,
+                                                        NUM_EPOCHS=epochs, 
+                                                        criterion=criterion,
+                                                        optimizer=optimizer,
+                                                        device=device,
+                                                        show=1)
 ```
 
 The output of the training scripts is the trained network and a dictionary with 
-training losses and evaluationmetrics. You can view them as follows:
+training losses and evaluation metrics. You can view them as follows:
 
 ```python
 from dlsia.viz_tools import plots
+
 fig = plots.plot_training_results_segmentation(results)
 fig.show()
 ```
