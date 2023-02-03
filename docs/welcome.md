@@ -7,6 +7,8 @@
 ![GitHub contributors](https://img.shields.io/github/contributors/phzwart/dlsia)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/phzwart/dlsia)
 
+|
+
 
 dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a number of segmentation and denoising
 methods using convolution neural networks. The tools available are build for 
