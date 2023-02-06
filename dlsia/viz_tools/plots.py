@@ -71,8 +71,8 @@ def plot_heatmap_and_labels(img, labels, plot_params):
     fig.update_layout(title_text=plot_params["title"])
     fig.update_layout(
         autosize=False,
-        width=900,
-        height=450)
+        width=700,
+        height=350)
     return fig
 
 
