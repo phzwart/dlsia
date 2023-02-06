@@ -76,13 +76,14 @@ def build_custom_colormap(mapper):
     return newcmp, these_patches
 
 
-def draw_network(SMSobj, fsize=7):
+def draw_network(SMSobj, fsize=3):
     """
     Draw the network
 
     parameters
     ----------
     SMSObj: A SMS Network object
+    fsize: image window size
 
     Returns
     -------
@@ -90,13 +91,13 @@ def draw_network(SMSobj, fsize=7):
 
     """
 
-    plt.rc('font', size=16)
-    plt.rc('axes', titlesize=16)
-    plt.rc('axes', labelsize=16)
-    plt.rc('xtick', labelsize=16)
-    plt.rc('ytick', labelsize=16)
-    plt.rc('legend', fontsize=18)
-    plt.rc('figure', titlesize=20)
+    plt.rc('font', size=12)
+    plt.rc('axes', titlesize=12)
+    plt.rc('axes', labelsize=12)
+    plt.rc('xtick', labelsize=12)
+    plt.rc('ytick', labelsize=12)
+    plt.rc('legend', fontsize=14)
+    plt.rc('figure', titlesize=16)
 
     G = SMSobj.network_graph
 
