@@ -5,9 +5,9 @@ from dlsia.core import corcoef
 from torchmetrics import F1Score
 
 
-def segmentation_metrics(preds, target, missing_label=-1):
+def segmentation_metrics(preds, target, missing_label=-1, are_probs=True, num_classes=None):
     """
-    Computes a variety  of F1 scores.
+    Computes a variety of F1 scores.
     See : https://towardsdatascience.com/micro-macro-weighted-averages-of-f1-score-clearly-explained-b603420b292f
 
     Parameters
@@ -15,14 +15,22 @@ def segmentation_metrics(preds, target, missing_label=-1):
     preds : Predicted labels
     target : Target labels
     missing_label : missing label
+    are_probs: preds are probabilities (pre or post softmax)
+    num_classes: if preds are not probabilities, we need to know the number of classes.
 
     Returns
     -------
     micro and macro F1 scores
     """
 
-    num_classes = preds.shape[1]
-    tmp = torch.argmax(preds, dim=1)
+    if are_probs:
+        num_classes = preds.shape
+        tmp = torch.argmax(preds, dim=1)
+    else:
+        tmp = preds
+
+    assert num_classes is not None
+
     F1_eval_macro = F1Score(task='multiclass',
                             num_classes=num_classes,
                             average='macro',
