@@ -24,7 +24,7 @@ def segmentation_metrics(preds, target, missing_label=-1, are_probs=True, num_cl
     """
 
     if are_probs:
-        num_classes = preds.shape
+        num_classes = preds.shape[1]
         tmp = torch.argmax(preds, dim=1)
     else:
         tmp = preds
