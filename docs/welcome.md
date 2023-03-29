@@ -27,11 +27,7 @@ We offer several methods for installation.
 
 ## pip: Python package installer
 
-The latest stable release may be installed with:
-
-```console
-$ pip install dlsia
-```
+We are currently working on a stable release.
 
 ## From source
 
