@@ -119,7 +119,7 @@ normalization=None
 
 ### Sparse mixed-scale dense network (SMSNet)
 
-![smsnet](images/RMSNet_fig.png 'smsnet fig')
+![smsnet](docs/images/RMSNet_fig.png 'smsnet fig')
 
 
 The dlsia suite also provides ways and means to build random, sparse mixed 
@@ -138,7 +138,7 @@ smsnet_model = smsnet.random_SMS_network(in_channels=1,
 ```
 ### Tunable U-Nets
 
-![tunet](images/UNet_fig.png 'tunet fig')
+![tunet](docs/images/UNet_fig.png 'tunet fig')
 
 An alternative network choice is to construct a UNet. Classic U-Nets can easily 
 explode in the number of parameters it requires; here we make it a bit easier 
@@ -180,7 +180,7 @@ train_loader_params = {'batch_size': 20,
 train_loader = DataLoader(train_data, **train_loader_params)
 ```
 
-### Training lopp
+### Training loop
 
 Once your DataLoaders are constructed, the training of these networks is as 
 simple as defining a torch.nn optimizer, and calling the training script:
