@@ -42,7 +42,7 @@ dlsia using:
 
 ```console
 $ cd dlsia
-$ pip install .
+$ pip install -e .
 ```
 
 ### Further documentation & tutorial download
