@@ -23,7 +23,6 @@ setuptools==64.0.2
 pytorch-lightning
 nbsphinx
 qlty
-faiss-gpu
 nbsphinx-link
 m2r
 papermill
