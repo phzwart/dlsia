@@ -8,6 +8,8 @@ import torchvision.transforms.functional as TF
 from torch.autograd import Variable
 from torch.nn import Module, Conv2d, Conv3d
 from torchvision.utils import save_image
+from torch.utils.data import TensorDataset, DataLoader
+
 
 """
 This modules contains various helper functions assisting in:
@@ -38,6 +40,40 @@ def make_dir(dir_name):
 
     if not os.path.exists(dir_name):
         os.makedirs(dir_name)
+
+
+def make_loaders(data,
+                 batch_size,
+                 shuffle=True,
+                 pin_memory=True,
+                 drop_last=True):
+    """
+    Loads image data into PyTorch DataLoader class, allowing for easy handling
+    and iterative loading of data data into the networks and models.
+
+    :param data: numpy array or PyTorch tensor of image data with
+                 dimensionality [num_images, x_1, x_2, ...]
+    :param batch_size: number of images loaded into a single batch for
+                       network processing
+    :param bool shuffle: if True, data is randomly shuffled at each epoch
+    :param bool pin_memory: if True, host=to-device (CPU-to-GPU) data
+                            transfer is faster
+    :param bool drop_last: if True, final incomplete batch is dropped if
+                           number of images in dataset is not divisible by
+                           batch_size
+    """
+
+    loader_params = {'batch_size': batch_size,
+                     'shuffle': shuffle,
+                     'num_workers': 0,
+                     'pin_memory': pin_memory,
+                     'drop_last': drop_last}
+
+    # Loaders are created below
+
+    loader = DataLoader(data, **loader_params)
+
+    return loader
 
 
 def count_parameters(module: Module):
