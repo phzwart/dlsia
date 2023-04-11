@@ -2,13 +2,48 @@ import numpy as np
 import torch
 from torch import nn
 
+def arithmetic_mean_std(results):
+    """
+    Computes Arithmatic mean and standard deviation
+
+    Parameters
+    ----------
+    results : an tensor with results. we average over channel 1
+
+    Returns
+    -------
+    mean and standard deviation (arithmatic)
+
+    """
+    m = torch.mean( results, dim = 1)
+    s = torch.std(results, dim=1)
+    return m, s
+
+def geometric_mean_std(results, eps=1e-12):
+    """
+    Computes geometric mean and standard deviation
+
+    Parameters
+    ----------
+    results : an tensor with results. we average over channel 1
+
+    Returns
+    -------
+    mean and standard deviation (geometric)
+
+    """
+    m = torch.mean( torch.log(results+eps), dim=1 )
+    m = torch.exp(a)
+    s = torch.std(torch.log(results+eps), dim=1)
+    s = torch.exp(s)
+    return m,s
 
 class model_baggin(nn.Module):
     """
     Bagg a number of models
     """
 
-    def __init__(self, models, model_type='classification', returns_normalized=False):
+    def __init__(self, models, model_type='classification', returns_normalized=False, average_type="geometric"):
         """
         Bag a number of models together and get a mean and std estimate
 
@@ -23,6 +58,11 @@ class model_baggin(nn.Module):
         self.models = models
         self.model_type = model_type
         self.returns_normalized = returns_normalized
+        if average_type == "geomtric":
+            self.mean_std_calulator = geometric_mean_std
+        else:
+            self.mean_std_calculator = arithmetic_mean_std
+
         assert self.model_type in ["regression", "classification"]
 
     def forward(self, x, device="cpu", return_std=False):
@@ -55,8 +95,8 @@ class model_baggin(nn.Module):
                 results.append(tmp_result.unsqueeze(1))
                 model.cpu()
             results = torch.cat(results, dim=1)
-            mean = torch.mean(results, dim=1)
-            std = torch.std(results, dim=1)
+            mean, std = self.mean_std_calculator(results)
+
             if self.model_type == "classification":
                 norma = torch.sum(mean, dim=1).unsqueeze(1)
                 mean = mean / norma
@@ -64,7 +104,7 @@ class model_baggin(nn.Module):
             if not return_std:
                 return mean
             return mean, std / np.sqrt(N)
-
+        
 
 class autoencoder_labeling_model_baggin(nn.Module):
     """
