@@ -42,7 +42,7 @@ def make_dir(dir_name):
         os.makedirs(dir_name)
 
 
-def make_loaders(data,
+def make_loaders(x, y,
                  batch_size,
                  shuffle=True,
                  pin_memory=True,
@@ -51,8 +51,8 @@ def make_loaders(data,
     Loads image data into PyTorch DataLoader class, allowing for easy handling
     and iterative loading of data data into the networks and models.
 
-    :param data: numpy array or PyTorch tensor of image data with
-                 dimensionality [num_images, x_1, x_2, ...]
+    :param x: numpy array of input image data
+    :param y: numpy array of target image data
     :param batch_size: number of images loaded into a single batch for
                        network processing
     :param bool shuffle: if True, data is randomly shuffled at each epoch
@@ -70,6 +70,7 @@ def make_loaders(data,
                      'drop_last': drop_last}
 
     # Loaders are created below
+    data = TensorDataset(torch.Tensor(x), torch.Tensor(y))
 
     loader = DataLoader(data, **loader_params)
 
