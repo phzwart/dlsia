@@ -76,12 +76,18 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
     :param clip_value: value for gradient clipping. Can be None.
     :return: A network and run summary stats
     """
+
     train_loss = []
-    validation_loss = []
     F1_train_trace_micro = []
     F1_train_trace_macro = []
-    F1_validation_trace_micro = []
-    F1_validation_trace_macro = []
+
+    # Skip validation steps if False or None loaded
+    if validationloader is False:
+        validationloader = None
+    if validationloader is not None:
+        validation_loss = []
+        F1_validation_trace_micro = []
+        F1_validation_trace_macro = []
 
     best_score = 1e10
     best_index = 0
@@ -93,14 +99,17 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
 
     for epoch in range(NUM_EPOCHS):
         running_train_loss = 0.0
-        running_validation_loss = 0.0
         running_F1_train_micro = 0.0
         running_F1_train_macro = 0.0
-        running_F1_validation_micro = 0.0
-        running_F1_validation_macro = 0.0
         tot_train = 0.0
-        tot_val = 0.0
+
+        if validationloader is not None:
+            running_validation_loss = 0.0
+            running_F1_validation_micro = 0.0
+            running_F1_validation_macro = 0.0
+            tot_val = 0.0
         count = 0
+
         for data in trainloader:
             count += 1
             noisy, target = data  # load noisy and target images
@@ -153,45 +162,47 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
             running_train_loss += loss.item()
 
         # compute validation step
-        with torch.no_grad():
-            for x, y in validationloader:
-                x = x.to(device)
-                y = y.to(device)
-                N_val = y.shape[0]
-                tot_val += N_val
-                if criterion.__class__.__name__ == 'CrossEntropyLoss':
-                    y = y.type(torch.LongTensor)
-                    y = y.to(device).squeeze(1)
+        if validationloader is not None:
+            with torch.no_grad():
+                for x, y in validationloader:
+                    x = x.to(device)
+                    y = y.to(device)
+                    N_val = y.shape[0]
+                    tot_val += N_val
+                    if criterion.__class__.__name__ == 'CrossEntropyLoss':
+                        y = y.type(torch.LongTensor)
+                        y = y.to(device).squeeze(1)
 
-                # forward pass, compute validation loss and accuracy
-                if use_amp is False:
-                    yhat = net(x)
-                    val_loss = criterion(yhat, y)
-                else:
-                    with torch.cuda.amp.autocast():
+                    # forward pass, compute validation loss and accuracy
+                    if use_amp is False:
                         yhat = net(x)
                         val_loss = criterion(yhat, y)
+                    else:
+                        with torch.cuda.amp.autocast():
+                            yhat = net(x)
+                            val_loss = criterion(yhat, y)
 
-                tmp_micro, tmp_macro = segmentation_metrics(yhat, y)
-                running_F1_validation_micro += tmp_micro.item()
-                running_F1_validation_macro += tmp_macro.item()
+                    tmp_micro, tmp_macro = segmentation_metrics(yhat, y)
+                    running_F1_validation_micro += tmp_micro.item()
+                    running_F1_validation_macro += tmp_macro.item()
 
-                # update running validation loss and accuracy
-                running_validation_loss += val_loss.item()
+                    # update running validation loss and accuracy
+                    running_validation_loss += val_loss.item()
 
         loss = running_train_loss / len(trainloader)
-        val_loss = running_validation_loss / len(validationloader)
         F1_micro = running_F1_train_micro / len(trainloader)
         F1_macro = running_F1_train_macro / len(trainloader)
-        F1_val_micro = running_F1_validation_micro / len(validationloader)
-        F1_val_macro = running_F1_validation_macro / len(validationloader)
-
         train_loss.append(loss)
-        validation_loss.append(val_loss)
         F1_train_trace_micro.append(F1_micro)
         F1_train_trace_macro.append(F1_macro)
-        F1_validation_trace_micro.append(F1_val_micro)
-        F1_validation_trace_macro.append(F1_val_macro)
+
+        if validationloader is not None:
+            val_loss = running_validation_loss / len(validationloader)
+            F1_val_micro = running_F1_validation_micro / len(validationloader)
+            F1_val_macro = running_F1_validation_macro / len(validationloader)
+            validation_loss.append(val_loss)
+            F1_validation_trace_micro.append(F1_val_micro)
+            F1_validation_trace_macro.append(F1_val_macro)
 
         if show != 0:
             learning_rates = []
@@ -199,19 +210,31 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
                 learning_rates.append(param_group['lr'])
             mean_learning_rate = np.mean(np.array(learning_rates))
             if np.mod(epoch + 1, show) == 0:
-                print(
-                    f'Epoch {epoch + 1} of {NUM_EPOCHS} | Learning rate {mean_learning_rate:4.3e}')
-                print(
-                    f'   Training Loss: {loss:.4e} | Validation Loss: {val_loss:.4e}')
-                print(
-                    f'   Micro Training F1: {F1_micro:.4f} | Micro Validation F1: {F1_val_micro:.4f}')
-                print(
-                    f'   Macro Training F1: {F1_macro:.4f} | Macro Validation F1: {F1_val_macro:.4f}')
+                if validationloader is not None:
+                    print(
+                        f'Epoch {epoch + 1} of {NUM_EPOCHS} | Learning rate {mean_learning_rate:4.3e}')
+                    print(
+                        f'   Training Loss: {loss:.4e} | Validation Loss: {val_loss:.4e}')
+                    print(
+                        f'   Micro Training F1: {F1_micro:.4f} | Micro Validation F1: {F1_val_micro:.4f}')
+                    print(
+                        f'   Macro Training F1: {F1_macro:.4f} | Macro Validation F1: {F1_val_macro:.4f}')
+                else:
+                    print(
+                        f'Epoch {epoch + 1} of {NUM_EPOCHS} | Learning rate {mean_learning_rate:4.3e}')
+                    print(
+                        f'   Training Loss: {loss:.4e} | Micro Training F1: {F1_micro:.4f} | Macro Training F1: {F1_macro:.4f}')
 
-        if val_loss < best_score:
-            best_state_dict = net.state_dict()
-            best_index = epoch
-            best_score = val_loss
+        if validationloader is not None:
+            if val_loss < best_score:
+                best_state_dict = net.state_dict()
+                best_index = epoch
+                best_score = val_loss
+        else:
+            if loss < best_score:
+                best_state_dict = net.state_dict()
+                best_index = epoch
+                best_score = val_loss
 
             if savepath is not None:
                 torch.save(best_state_dict, savepath + '/net_best')
@@ -223,6 +246,11 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
                 torch.save(net.state_dict(), savepath + '/net_checkpoint')
                 print('   Network intermittently saved')
                 print('')
+
+    if validationloader is not None:
+        validation_loss = None
+        F1_validation_trace_micro = None
+        F1_validation_trace_macro = None
 
     results = {"Training loss": train_loss,
                "Validation loss": validation_loss,
