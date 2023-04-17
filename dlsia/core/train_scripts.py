@@ -247,7 +247,7 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
                 print('   Network intermittently saved')
                 print('')
 
-    if validationloader is not None:
+    if validationloader is None:
         validation_loss = None
         F1_validation_trace_micro = None
         F1_validation_trace_macro = None
