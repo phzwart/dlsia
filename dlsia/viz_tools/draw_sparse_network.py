@@ -190,11 +190,11 @@ def draw_network(SMSobj, fsize=3):
                extent=(1 - 0.5, N_nodes + 0.5, N_nodes + 0.5, 1 - 0.5),
                interpolation='none'
                )
-    plt.ylabel("From Node")
-    plt.xlabel("To Node")
-    plt.title("Adjency Matrix - Channels")
-    plt.xticks(ticks)
-    plt.yticks(ticks[::-1])
-    plt.legend(handles=patches, loc='lower left')
+    #plt.ylabel("From Node")
+    #plt.xlabel("To Node")
+    #plt.title("Adjency Matrix - Channels")
+    #plt.xticks(ticks)
+    #plt.yticks(ticks[::-1])
+    #plt.legend(handles=patches, loc='lower left')
 
     return network_fig, dil_fig, chan_fig
