@@ -171,9 +171,6 @@ class MSDNet2(nn.Module):
         self.dilations = np.tile(tmp, num_rep)
         self.dilations = self.dilations[0 : self.num_layers]
 
-        print('*********')
-        print(len(self.dilations), self.dilations)
-
         self.connections = [[0 for i in range(self.num_layers+1)] for j in
                                  range(self.num_layers + 1)]
 
@@ -183,7 +180,6 @@ class MSDNet2(nn.Module):
         for out_layer in range(1,self.num_layers + 1):
             for in_layer in range(out_layer):
 
-                #print('In - out: ', in_layer, out_layer)
 
                 tmp = self.build_conv_operator(self.dilations[out_layer-1])
                 self.connections[in_layer][out_layer] = f"Connection" \
