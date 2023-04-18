@@ -238,7 +238,6 @@ class MSDNet2(nn.Module):
         """
 
         x_main = x
-        #print('Original size: ', x_main.size())
 
         for out_layer in range(1, self.num_layers + 1):
 
@@ -246,17 +245,12 @@ class MSDNet2(nn.Module):
 
             for in_layer in range(out_layer):
 
-                #print('')
-                #print('In - out: ', in_layer, out_layer)
-                #print(x_main[:, in_layer, :, :].unsqueeze(1).size())
-
                 tmp.append(
                     self._modules[self.connections[in_layer][out_layer]](
                         x_main[:, in_layer, :, :].unsqueeze(1)))
 
 
             tmp = torch.cat(tmp, dim=1)
-            #print('KEY tmp: ', tmp.size())
 
             if len(tmp.size()) == 3:
                 tmp = torch.unsqueeze(tmp,1)
@@ -265,35 +259,18 @@ class MSDNet2(nn.Module):
                 tmp = torch.unsqueeze(tmp, 1)
                 tmp = self.activation(tmp)
 
-                #if self.activation is not None:
-                #    tmp =
-
-            #x_main = torch.stack((x_main, tmp), dim=1)
-            #print('Size of tmp: ', tmp.size())
-            #print('Size of x_main: ', x_main.size())
             x_main = torch.cat((x_main, tmp), 1)
 
 
 
             #if out_layer == 3:
             #    assert 5==9
-        print('')
-        print('After final inner layer layer')
-        print('In - out: ', in_layer, out_layer)
-        print(x_main.size())
+
 
         # Apply final convolution for output layer
 
-        print(self._modules[self.connections[in_layer][out_layer]])
-        print(self._modules[self.connections[in_layer + 1][out_layer]])
         x_out = self._modules[self.connections[in_layer+1][out_layer]](x_main)
 
-
-
-
-        #x1 = self._modules[self.connections[1][2]](x)
-        #x2 = self._modules[self.connections[2][3]](x1)
-        #print(self.modules[])
 
         return x_out
 
