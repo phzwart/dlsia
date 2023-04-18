@@ -183,18 +183,18 @@ def draw_network(SMSobj, fsize=3):
     plt.yticks(ticks[::-1])
     plt.legend(handles=patches, loc='lower left')
 
-    #chan_cmp, patches = build_custom_colormap(chan_mapper)
-    #chan_fig = plt.figure(figsize=(fsize + 1, fsize + 1))
-    #plt.imshow(channel_mat,
+    chan_cmp, patches = build_custom_colormap(chan_mapper)
+    chan_fig = plt.figure(figsize=(fsize + 1, fsize + 1))
+    plt.imshow(channel_mat,
                cmap=chan_cmp,
                extent=(1 - 0.5, N_nodes + 0.5, N_nodes + 0.5, 1 - 0.5),
                interpolation='none'
                )
-    #plt.ylabel("From Node")
-    #plt.xlabel("To Node")
-    #plt.title("Adjency Matrix - Channels")
-    #plt.xticks(ticks)
-    #plt.yticks(ticks[::-1])
-    #plt.legend(handles=patches, loc='lower left')
+    plt.ylabel("From Node")
+    plt.xlabel("To Node")
+    plt.title("Adjency Matrix - Channels")
+    plt.xticks(ticks)
+    plt.yticks(ticks[::-1])
+    plt.legend(handles=patches, loc='lower left')
 
     return network_fig, dil_fig, chan_fig
