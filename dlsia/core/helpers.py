@@ -42,7 +42,7 @@ def make_dir(dir_name):
         os.makedirs(dir_name)
 
 
-def make_loaders(x, y,
+def make_loader(x, y,
                  batch_size,
                  shuffle=True,
                  pin_memory=True,
