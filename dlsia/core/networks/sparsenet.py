@@ -601,12 +601,9 @@ class SparseAutoEncoder(nn.Module):
 
     def topology_dict(self):
         topo_dict = OrderedDict()
-
         topo_dict["in_shape"] = self.in_shape
         topo_dict["latent_shape"] = self.latent_shape
         topo_dict["in_channels"] = self.in_channels
-        topo_dict["out_classes"] = self.out_classes
-        topo_dict["dropout_rate"] = self.dropout_rate
         topo_dict["out_channels"] = self.out_channels
         topo_dict["stride_base"] = self.stride_base
         topo_dict["final_transform"] = self.final_transform
