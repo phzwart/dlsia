@@ -177,8 +177,8 @@ class MSEncoder(nn.Module):
         self.max_dilation = max_dilation
         self.MS_depth = MS_depth
 
-        ysizing = tunet.unet_sizing_chart(N=self.input_shape[1], depth=self.depth, stride=2, kernel=3, dilation=1)
-        xsizing = tunet.unet_sizing_chart(N=self.input_shape[2], depth=self.depth, stride=2, kernel=3, dilation=1)
+        ysizing = tunet.unet_sizing_chart(N=self.input_shape[1], depth=self.depth, stride=2, maxpool_kernel_size=2, dilation=1)
+        xsizing = tunet.unet_sizing_chart(N=self.input_shape[2], depth=self.depth, stride=2, maxpool_kernel_size=2, dilation=1)
 
         self.sizing_chart = [ysizing, xsizing]
         self.channel_sequence = [(self.input_channels, self.base_channels)]
@@ -217,7 +217,7 @@ class MSEncoder(nn.Module):
         this_MaxPool = tunet.build_down_operator(chart=self.sizing_chart,
                                                  from_depth=from_depth,
                                                  to_depth=from_depth + 1,
-                                                 conv_kernel=nn.MaxPool2d,
+                                                 maxpool_kernel=nn.MaxPool2d,
                                                  key="Pool_Settings")
         operator = nn.Sequential(this_wide_net, this_MaxPool)
         return operator
@@ -304,8 +304,8 @@ class MSDecoder(nn.Module):
         self.max_dilation = max_dilation
         self.MS_depth = MS_depth
 
-        ysizing = tunet.unet_sizing_chart(N=self.output_shape[1], depth=self.depth, stride=2, kernel=3, dilation=1)
-        xsizing = tunet.unet_sizing_chart(N=self.output_shape[2], depth=self.depth, stride=2, kernel=3, dilation=1)
+        ysizing = tunet.unet_sizing_chart(N=self.output_shape[1], depth=self.depth, stride=2, maxpool_kernel_size=2, dilation=1)
+        xsizing = tunet.unet_sizing_chart(N=self.output_shape[2], depth=self.depth, stride=2, maxpool_kernel_size=2, dilation=1)
         self.sizing_chart = [ysizing, xsizing]
         self.channel_sequence = [(self.input_channels, self.base_channels)]
         for ii in range(1, depth):
