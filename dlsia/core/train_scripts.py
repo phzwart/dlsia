@@ -234,7 +234,7 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
             if loss < best_score:
                 best_state_dict = net.state_dict()
                 best_index = epoch
-                best_score = val_loss
+                best_score = loss
 
             if savepath is not None:
                 torch.save(best_state_dict, savepath + '/net_best')
