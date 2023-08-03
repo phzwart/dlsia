@@ -45,9 +45,11 @@ def segmentation_metrics(preds, target, missing_label=-1, are_probs=True, num_cl
     sel = b == missing_label
     a = a[~sel]
     b = b[~sel]
-
-    tmp_macro = F1_eval_macro(a, b)
-    tmp_micro = F1_eval_micro(a, b)
+    tmp_macro = torch.Tensor([0])
+    tmp_micro = torch.Tensor([0])
+    if len(a.flatten()) > 0:
+        tmp_macro = F1_eval_macro(a, b)
+        tmp_micro = F1_eval_micro(a, b)
 
     return tmp_micro, tmp_macro
 
@@ -371,12 +373,13 @@ def train_regression(net, trainloader, validationloader, NUM_EPOCHS,
             if clip_value is not None:
                 torch.nn.utils.clip_grad_value_(net.parameters(), clip_value)
             optimizer.step()
-            if scheduler is not None:
-                scheduler.step()
 
             tmp = regression_metrics(output, target)
             running_CC_train_val += tmp.item()  # *N_train
             running_train_loss += loss.item()
+
+        if scheduler is not None:
+            scheduler.step()
 
         # compute validation step
         with torch.no_grad():
