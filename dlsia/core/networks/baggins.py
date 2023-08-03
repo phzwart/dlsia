@@ -33,7 +33,7 @@ def geometric_mean_std(results, eps=1e-12):
 
     """
     m = torch.mean( torch.log(results+eps), dim=1 )
-    m = torch.exp(a)
+    m = torch.exp(m)
     s = torch.std(torch.log(results+eps), dim=1)
     s = torch.exp(s)
     return m,s
@@ -43,7 +43,7 @@ class model_baggin(nn.Module):
     Bagg a number of models
     """
 
-    def __init__(self, models, model_type='classification', returns_normalized=False, average_type="geometric"):
+    def __init__(self, models, model_type='classification', returns_normalized=False, average_type="arithmetic"):
         """
         Bag a number of models together and get a mean and std estimate
 
@@ -58,8 +58,8 @@ class model_baggin(nn.Module):
         self.models = models
         self.model_type = model_type
         self.returns_normalized = returns_normalized
-        if average_type == "geomtric":
-            self.mean_std_calulator = geometric_mean_std
+        if average_type == "geometric":
+            self.mean_std_calculator = geometric_mean_std
         else:
             self.mean_std_calculator = arithmetic_mean_std
 
@@ -83,17 +83,18 @@ class model_baggin(nn.Module):
         std = 0
         N = 0
         results = []
+        x = x.to(device)
         with torch.no_grad():
             for model in self.models:
                 N += 1
                 if device != "cpu":
                     torch.cuda.empty_cache()
-                tmp_result = model.to(device)(x.to(device)).cpu()
+                tmp_result = model.to(device)(x)#.cpu()
                 if self.model_type == "classification":
                     if not self.returns_normalized:
                         tmp_result = nn.Softmax(dim=1)(tmp_result)
-                results.append(tmp_result.unsqueeze(1))
-                model.cpu()
+                results.append(tmp_result.unsqueeze(1).cpu())
+                #model.cpu()
             results = torch.cat(results, dim=1)
             mean, std = self.mean_std_calculator(results)
 
