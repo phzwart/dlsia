@@ -4,6 +4,14 @@
 
 .. image:: images/dlsia.png
 
+<a style="text-decoration:none !important;" href="https://dlsia.readthedocs.io/en/latest/" alt="website"><img src="https://img.shields.io/readthedocs/dlsia" /></a>
+<a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+<a style="text-decoration:none !important;" href="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" alt="License"><img src="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" /></a>
+![GitHub contributors](https://img.shields.io/github/contributors/phzwart/dlsia)
+![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/phzwart/dlsia)
+[![GitHub issues](https://img.shields.io/github/issues/Naereen/StrapDown.js.svg)](https://github.com/phzwart/dlsia/issues)
+[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://github.com/phzwart/dlsia/releases/)
+
 dlsia documentation
 ===================
 
