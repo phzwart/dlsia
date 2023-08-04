@@ -154,14 +154,15 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
             if clip_value is not None:
                 torch.nn.utils.clip_grad_value_(net.parameters(), clip_value)
             optimizer.step()
-            if scheduler is not None:
-                scheduler.step()
+
 
             tmp_micro, tmp_macro = segmentation_metrics(output, target)
 
             running_F1_train_micro += tmp_micro.item()
             running_F1_train_macro += tmp_macro.item()
             running_train_loss += loss.item()
+        if scheduler is not None:
+            scheduler.step()
 
         # compute validation step
         if validationloader is not None:
@@ -542,14 +543,16 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
             if clip_value is not None:
                 torch.nn.utils.clip_grad_value_(net.parameters(), clip_value)
             optimizer.step()
-            if scheduler is not None:
-                scheduler.step()
+
 
             tmp = regression_metrics(output, noisy)
             running_CC_train_val += tmp.item()  # *N_train
             running_train_loss += loss.item()
 
         # compute validation step
+        if scheduler is not None:
+            scheduler.step()
+
         with torch.no_grad():
             for dataVal in validationloader:
 
@@ -727,8 +730,7 @@ def autoencode_and_classify_training(net,
                         if clip_value is not None:
                             torch.nn.utils.clip_grad_value_(net.parameters(), clip_value)
                         minimizer_classify.step()
-                        if scheduler is not None:
-                            scheduler.step()
+
 
                 tmp = regression_metrics(imgs_AE, imgs)
                 running_train_CC += tmp.item()
@@ -751,6 +753,9 @@ def autoencode_and_classify_training(net,
             CC_train.append(running_train_CC)
             F1_micro_train.append(running_F1_micro_train)
             F1_macro_train.append(running_F1_macro_train)
+
+            if scheduler is not None:
+                scheduler.step()
 
             for batch in validationloader:
                 imgs, lbls = batch
