@@ -6,14 +6,18 @@
 <a style="text-decoration:none !important;" href="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" alt="License"><img src="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" /></a>
 ![GitHub contributors](https://img.shields.io/github/contributors/phzwart/dlsia)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/phzwart/dlsia)
+[![GitHub issues](https://img.shields.io/github/issues/Naereen/StrapDown.js.svg)](https://github.com/phzwart/dlsia/issues)
+[![GitHub release](https://img.shields.io/github/release/Naereen/StrapDown.js.svg)](https://github.com/phzwart/dlsia/releases/)
+
 
 |
 
 
-dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a number of segmentation and denoising
-methods using convolution neural networks. The tools available are build for 
-microscopy and synchrotron-imaging/scattering data in mind, but can be used 
-elsewhere as well.
+dlsia (Deep Learning for Scientific Image Analysis) provides easy access to a 
+number of segmentation and denoising methods using convolution neural networks. 
+The tools available are built for  microscopy and 
+synchrotron-imaging/scattering data in mind, but can be used elsewhere as 
+well.
 
 The easiest way to start playing with the code is to install dlsia and 
 perform denoising/segmenting using custom neural networks in our tutorial 
