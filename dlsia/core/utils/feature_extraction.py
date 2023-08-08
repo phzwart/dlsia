@@ -7,20 +7,6 @@ from skimage import feature
 from functools import partial
 
 
-def covariance_matrix(tensor):
-    # Input tensor shape: (N, K, C)
-    N, K, C = tensor.shape
-
-    # Subtract the mean along the K dimension (centering the data)
-    tensor_centered = tensor - tensor.mean(dim=1, keepdim=True)
-
-    # Compute the covariance matrix for each sample in the batch
-    cov_matrix = torch.matmul(tensor_centered.transpose(1, 2),
-                              tensor_centered) / (K - 1)
-
-    # Resulting shape: (N, C, C)
-    return cov_matrix
-
 
 class feature_extractor:
     """
@@ -34,76 +20,73 @@ class feature_extractor:
     """
 
     def __init__(self,
-                 image,
-                 normalize=True,
-                 window_size=50,
-                 sigmas=[1, 2, 3, 4, 5]):
-        self.image = image
-        # self.extractor = extractor
+                 sigma_min = 1,
+                 sigma_max = 10,
+                 num_sigma = 10,
+                 normalize = True):
+        super(feature_extractor, self).__init__()
+
         self.normalize = normalize
-        self.window_size = window_size
-        self.sigmas = sigmas
+        self.sigma_min = sigma_min
+        self.sigma_max = sigma_max
+        self.num_sigma = num_sigma
 
-        super().__init__()
-
-        if torch.is_tensor(image) is False:
-            image = torch.as_tensor(image)
-
-        print(len(image.size()))
-        if len(image.size()) == 2:
-            image = image.unsqueeze(0)
-
-        # if extractor is None:
-        sigma_min = self.sigmas[0]
-        sigma_max = self.sigmas[-1]
-        num_sigma = len(self.sigmas)
-        extractor = partial(feature.multiscale_basic_features,
+        self.extractor = partial(feature.multiscale_basic_features,
                             intensity=True,
                             edges=True,
                             texture=True,
-                            sigma_min=sigma_min,
-                            sigma_max=sigma_max,
-                            num_sigma=num_sigma,
+                            sigma_min=self.sigma_min,
+                            sigma_max=self.sigma_max,
+                            num_sigma=self.num_sigma,
                             channel_axis=0)
 
-        features = torch.Tensor(extractor(image.numpy()))
 
-        if normalize is True:
-            means = torch.mean(features, dim=(0, 1))
-            stds = torch.std(features, dim=(0, 1))
-            features = (features - means) / stds
+    def _process_3d(self, images):
+        assert len(images.shape)==5
+        if torch.is_tensor(images) is False:
+            images = torch.as_tensor(images)
+        features = []
+        for img in images:
+            feature = torch.Tensor(self.extractor(img.numpy()))
+            if self.normalize is True:
+                means = torch.mean(feature, dim=(0, 1))
+                stds = torch.std(feature, dim=(0, 1))
+                feature = (feature - means) / stds
+            features.append(feature.unsqueeze(0))
+        features = torch.cat(features, dim=0)
+        result = torch.concatenate( [images, einops.rearrange(features, "N Z Y X C -> N C Z Y X") ], dim=1 )
 
-        qlt_obj = qlty2D.NCYXQuilt(Y=features.shape[0],
-                                   X=features.shape[1],
-                                   window=(window_size, window_size),
-                                   step=(window_size, window_size),
-                                   border=(1, 1),
-                                   border_weight=0.5)
+        return result
 
-        t_X_all = einops.rearrange(features, "Y X N -> () N Y X")
-        q_X_all = qlt_obj.unstitch(t_X_all)
-        vecs = einops.rearrange(q_X_all, "N K Y X -> N (Y X) K")
+    def _process_2d(self, images):
+        assert len(images.shape)==4
+        if torch.is_tensor(images) is False:
+            images = torch.as_tensor(images)
 
-        vcv = torch.logdet(covariance_matrix(vecs))
+        features = []
+        for img in images:
+            feature = torch.Tensor(self.extractor(img.numpy()))
+            if self.normalize is True:
+                means = torch.mean(feature, dim=(0, 1))
+                stds = torch.std(feature, dim=(0, 1))
+                feature = (feature - means) / stds
+                #feature = self.normal_cdf(feature)
+            features.append(feature.unsqueeze(0))
+        features = torch.cat(features, dim=0)
+        result = torch.concatenate( [images, einops.rearrange(features, "N Y X C -> N C Y X") ], dim=1 )
+        return result
 
-        variations = vcv
-        v = variations.unsqueeze(-1).unsqueeze(-1).unsqueeze(-1)
-        template = torch.ones((v.size()[0], 1, window_size, window_size)) * v
-        output, _ = qlt_obj.stitch(template)
+    def process(self, images):
+        if len(images.shape)==4:
+            return self._process_2d(images)
+        if len(images.shape) == 5:
+            return self._process_3d(images)
 
-        self.output = output
-        self.features = features
-        self.t_X_all = t_X_all
 
-    def view_napari(self):
-        '''Views input, features, and target areas in Napari'''
-        viewer = napari.view_image(self.image, name='Input')
-        _ = viewer.add_image(self.output.numpy()[0, 0], name='Target',
-                             colormap='inferno')
-        _ = viewer.add_image(self.t_X_all.numpy(), name='Features')
+if __name__ == "__main__":
+    img = torch.Tensor(np.random.random((2,1,100,100)))
+    obj = feature_extractor(100,100,20)
+    tmp = obj.process(img)
 
-    def get_target(self):
-        return self.output
 
-    def get_features(self):
-        return self.t_X_all
+
