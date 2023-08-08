@@ -19,7 +19,7 @@ tifffile>=2021.2.26
 torchmetrics>=0.11.0
 typing>=3.7.4.3
 jedi>=0.10
-connected-components-3d￼
+connected-components-3d
 pytorch-lightning
 nbsphinx
 qlty
