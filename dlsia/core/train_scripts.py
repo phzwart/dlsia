@@ -33,12 +33,10 @@ def segmentation_metrics(preds, target, missing_label=-1, are_probs=True, num_cl
 
     F1_eval_macro = F1Score(task='multiclass',
                             num_classes=num_classes,
-                            average='macro',
-                            mdmc_average='global')
+                            average='macro')
     F1_eval_micro = F1Score(task='multiclass',
                             num_classes=num_classes,
-                            average='micro',
-                            mdmc_average='global')
+                            average='micro')
     a = tmp.cpu()
     b = target.cpu()
 

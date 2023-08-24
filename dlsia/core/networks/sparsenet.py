@@ -438,6 +438,8 @@ class SparseAutoEncoder(nn.Module):
     def __init__(self,
                  in_shape=(28, 28),
                  latent_shape=(7, 7),
+                 latent_sequence = [32,2],
+                 dropout_p=0.05,
                  in_channels=1,
                  depth=20,
                  dilations=None,
@@ -489,6 +491,8 @@ class SparseAutoEncoder(nn.Module):
         self.in_channels = in_channels
         self.stride_base = stride_base
         self.final_transform = final_transform
+        self.latent_sequence = latent_sequence
+        self.dropout_p = dropout_p
 
         if encoder is None:
             assert decoder is None
@@ -550,6 +554,33 @@ class SparseAutoEncoder(nn.Module):
 
         self.Nlatent = out_channels * latent_shape[0] * latent_shape[1]
 
+        self.flatten = nn.Flatten()
+        self.unflatten = nn.Unflatten(1, (self.out_channels, *self.latent_shape))
+
+
+        layers = []
+        previous_layer_features = self.Nlatent
+        for num_features in latent_sequence[:-1]:
+            layers.append(nn.Linear(previous_layer_features, num_features))
+            layers.append(nn.BatchNorm1d(num_features))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(dropout_p))
+            previous_layer_features = num_features
+        layers.append(nn.Linear(previous_layer_features, latent_sequence[-1]))
+        self.encoder_fc_layers = nn.Sequential(*layers)
+
+        # Additional Fully Connected Layers for Decoder
+        layers = []
+        previous_layer_features = latent_sequence[-1]
+        for num_features in reversed(latent_sequence[:-1]):
+            layers.append(nn.Linear(previous_layer_features, num_features))
+            layers.append(nn.BatchNorm1d(num_features))
+            layers.append(nn.ReLU())
+            layers.append(nn.Dropout(dropout_p))
+            previous_layer_features = num_features
+        layers.append(nn.Linear(previous_layer_features, self.Nlatent))
+        self.decoder_fc_layers = nn.Sequential(*layers)
+
     def latent_vector(self, x):
         """
         Get the latent space vector
@@ -564,6 +595,7 @@ class SparseAutoEncoder(nn.Module):
         """
         x = self.encode(x)
         x = einops.rearrange(x, "N C Y X -> N (C Y X)")
+        x = self.encoder_fc_layers(x)
         return x
 
     def forward(self, x):
@@ -578,7 +610,12 @@ class SparseAutoEncoder(nn.Module):
         -------
 
         """
+
         x = self.encode(x)
+        x = self.flatten(x)
+        x = self.encoder_fc_layers(x)
+        x = self.decoder_fc_layers(x)
+        x = self.unflatten(x)
         x = self.decode(x)
         if self.final_transform is not None:
             x = self.final_transform(x)
@@ -597,6 +634,8 @@ class SparseAutoEncoder(nn.Module):
         """
         self.encode = self.encode.to(device)
         self.decode = self.decode.to(device)
+        self.encoder_fc_layers = self.encoder_fc_layers.to(device)
+        self.decoder_fc_layers = self.decoder_fc_layers.to(device)
         return self
 
     def topology_dict(self):
@@ -638,3 +677,4 @@ def SparseAutoEncoder_from_file(filename):
     SAE = SparseAutoEncoder(encoder=encoder, decoder=decoder, **network_dict["topo_dict"])
     SAE.load_state_dict(network_dict["state_dict"])
     return SAE
+

@@ -16,9 +16,7 @@ elsewhere as well.
 
 The easiest way to start playing with the code is to install dlsia and 
 perform denoising/segmenting using custom neural networks in our tutorial 
-notebooks located in the dlsia/tutorials folder, or perform multi-class 
-segmentation in Gaussian noise
-on [google colab](https://colab.research.google.com/drive/1ljMQ12UZ57FJjQ9CqG06PZo-bzOnY-UE?usp=sharing)
+notebooks located in the dlsia/tutorials folder.
 
 ## Install dlsia
 
