@@ -31,7 +31,11 @@ We offer several methods for installation.
 
 ## pip: Python package installer
 
-We are currently working on a stable release.
+Current dlsia stable release requires python>=3.9 and may be installed using:
+
+```console
+pip install dlsia
+```
 
 ## From source
 
