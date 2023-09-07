@@ -22,7 +22,7 @@ jedi>=0.10
 connected-components-3d
 pytorch-lightning
 nbsphinx
-qlty
+qlty>=0.1.4
 nbsphinx-link
 m2r
 papermill
