@@ -215,6 +215,7 @@ class TUNet(nn.Module):
                  kernel_up=nn.ConvTranspose2d,
                  normalization=nn.BatchNorm2d,
                  activation=nn.ReLU(),
+                 final_activation = None,
                  conv_kernel_size=3,
                  maxpool_kernel_size=2,
                  dilation=1
@@ -240,6 +241,8 @@ class TUNet(nn.Module):
                               we need a different instance per layer.
                               ex) normalization=nn.BatchNorm2d
         :param activation: torch.nn class instance or list of torch.nn class
+                           instances
+        :param final_activation: torch.nn class instance or list of torch.nn class
                            instances
         :param conv_kernel_size: The size of the convolutional kernel we use
         :param maxpool_kernel_size: The size of the max pooling/transposed
@@ -284,6 +287,12 @@ class TUNet(nn.Module):
             self.activation = activation
         else:
             self.activation = None
+
+        if final_activation is not None:
+            self.final_activation = final_activation
+        else:
+            self.final_activation = None
+
         self.return_final_layer_ = False
 
         # we now need to get the sizing charts sorted
@@ -561,7 +570,8 @@ class TUNet(nn.Module):
         x = self._modules[self.step_up[0]](x)
         x = torch.cat((self.partials_encoder[0], x), dim=1)
         x_out = self._modules[self.decoders[0]](x)
-
+        if self.final_activation is not None:
+            return self.final_activation(x_out)
         return x_out
 
     def topology_dict(self):
