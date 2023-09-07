@@ -73,7 +73,9 @@ class feature_extractor:
                 #feature = self.normal_cdf(feature)
             features.append(feature.unsqueeze(0))
         features = torch.cat(features, dim=0)
-        result = torch.concatenate( [images, einops.rearrange(features, "N Y X C -> N C Y X") ], dim=1 )
+        m = torch.mean(images, dim=(-2,-1))
+        s = torch.std(images, dim=(-2,-1))
+        result = torch.concatenate( [(images-m)/s, einops.rearrange(features, "N Y X C -> N C Y X") ], dim=1 )
         return result
 
     def process(self, images):
@@ -81,6 +83,9 @@ class feature_extractor:
             return self._process_2d(images)
         if len(images.shape) == 5:
             return self._process_3d(images)
+
+    def __call__(self, images):
+        return self.process(images)
 
 
 if __name__ == "__main__":
