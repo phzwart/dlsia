@@ -28,3 +28,4 @@ m2r
 papermill
 umap-learn>=0.5.3
 kaleido
+zarr
