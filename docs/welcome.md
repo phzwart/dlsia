@@ -2,7 +2,7 @@
 # Welcome to dlsia's documentation!
 
 <a style="text-decoration:none !important;" href="https://dlsia.readthedocs.io/en/latest/" alt="website"><img src="https://img.shields.io/readthedocs/dlsia" /></a>
-<a style="text-decoration:none !important;" href="https://opensource.org/licenses/MIT" alt="License"><img src="https://img.shields.io/badge/license-MIT-blue.svg" /></a>
+<a style="text-decoration:none !important;" href="https://opensource.org/licenses/BSD" alt="License"><img src="https://img.shields.io/badge/license-BSD-blue.svg" /></a>
 <a style="text-decoration:none !important;" href="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" alt="License"><img src="https://img.shields.io/github/commit-activity/m/phzwart/dlsia" /></a>
 ![GitHub contributors](https://img.shields.io/github/contributors/phzwart/dlsia)
 ![GitHub code size in bytes](https://img.shields.io/github/languages/code-size/phzwart/dlsia)
