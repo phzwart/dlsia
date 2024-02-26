@@ -462,7 +462,7 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
                       criterion, optimizer, device,
                       savepath=None, saveevery=None,
                       scheduler=None, use_amp=False,
-                      show=0, clip_value=None):
+                      show=0, clip_value=None, mask=None):
     """
     Loop through epochs passing dirty images to net.
 
@@ -482,6 +482,8 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
     :return: A network and run summary stats.
     """
 
+    if mask is None:
+        mask = 1.0
     train_loss = []
     validation_loss = []
     CC_train_trace = []
@@ -517,7 +519,7 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
             if use_amp is False:
                 # forward pass, compute loss and accuracy
                 output = net(noisy)
-                loss = criterion(output, noisy)
+                loss = criterion(output*mask, noisy*mask)
 
                 # backpropagation
                 optimizer.zero_grad()
@@ -527,7 +529,7 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
                 with torch.cuda.amp.autocast():
                     # forward pass, compute loss and accuracy
                     output = net(noisy)
-                    loss = criterion(output, noisy)
+                    loss = criterion(output*mask, noisy*mask)
 
                 # backpropagation
                 optimizer.zero_grad()
@@ -563,11 +565,11 @@ def train_autoencoder(net, trainloader, validationloader, NUM_EPOCHS,
                 # forward pass, compute validation loss and accuracy
                 if use_amp is False:
                     yhat = net(x)
-                    val_loss = criterion(yhat, x)
+                    val_loss = criterion(yhat*mask, x*mask)
                 else:
                     with torch.cuda.amp.autocast():
                         yhat = net(x)
-                        val_loss = criterion(yhat, x)
+                        val_loss = criterion(yhat*mask, x*mask)
 
                 tmp = regression_metrics(yhat, x)
                 running_CC_validation_val += tmp.item()  # *N_val
