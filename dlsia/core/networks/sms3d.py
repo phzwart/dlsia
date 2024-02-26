@@ -8,11 +8,6 @@ from dlsia.core.networks import graph_utils
 from dlsia.core.networks import scale_up_down
 from torch.nn import Conv3d
 
-
-# from SMSNet import sort_and_rename, buildSMSnodechannels
-# from SMSNet import edges_source_sink_list, buildSMSdilations
-
-
 def Conv3DReLU(in_channels,
                out_channels,
                conv_kernel_size,
@@ -141,6 +136,22 @@ def Identity(in_channels, out_channels):
     return function
 
 
+def aggregate(node_layer_accumulator, this_node, data):
+        """
+        Aggregate the data in place
+        :param node_layer_accumulator: a lit of lists
+        :param this_node: where we place stuff
+        :param data: the data to add
+        """
+        if node_layer_accumulator[this_node] is None:
+            node_layer_accumulator[this_node] = data
+        else:
+            node_layer_accumulator[this_node] = \
+                torch.cat([node_layer_accumulator[this_node], data], 1)
+        return node_layer_accumulator
+
+
+
 class SMSNet3D(nn.Module):
     """
     A Sparse Mixed Scale Network, 3D
@@ -197,35 +208,10 @@ class SMSNet3D(nn.Module):
 
         self.node_layer_accumulator = OrderedDict()
         self.action_list = []
-        for node in self.channel_count:
-            self.node_layer_accumulator[node] = []
 
         self.build_network()
 
         self.return_before_last_layer_ = False
-
-    def aggregate(self, this_node, data):
-        """
-        Aggregate the data in place
-
-        :param this_node:
-        :param data:
-        """
-
-        if self.node_layer_accumulator[this_node] is None:
-            self.node_layer_accumulator[this_node] = data
-        else:
-            self.node_layer_accumulator[this_node] = \
-                torch.cat([self.node_layer_accumulator[this_node], data], 1)
-
-    def reset(self):
-        """
-        Simple reset
-        :return: None
-        :rtype: None
-        """
-        for node in self.node_layer_accumulator:
-            self.node_layer_accumulator[node] = None
 
     def build_network(self):
         """
@@ -294,8 +280,6 @@ class SMSNet3D(nn.Module):
         last_action_in = self.channel_count[last_node]
         last_action_out = self.out_channels
 
-        self.node_layer_accumulator[last_node] = None
-
         self.action_list.append(('Last_Action', last_node, None))
 
         if self.last_action is None:
@@ -313,20 +297,25 @@ class SMSNet3D(nn.Module):
         :param x: The data
         :return: the resulting tensor after it has been passed through the network
         """
-        self.reset()
-        self.aggregate(0, x)
+
+        node_layer_accumulator = OrderedDict()
+        for node in self.channel_count:
+            node_layer_accumulator[node] = None
+        last_node = next(reversed(self.channel_count))
+        node_layer_accumulator[last_node] = None
+
+        aggregate(node_layer_accumulator, 0, x)
 
         for action_pair in self.action_list[:-1]:
             action, from_here, to_there = action_pair
-            data_in = self.node_layer_accumulator[from_here]
+            data_in = node_layer_accumulator[from_here]
             data_out = self._modules[action](data_in)
-            self.aggregate(to_there, data_out)
+            aggregate(node_layer_accumulator, to_there, data_out)
 
         action, from_here, to_there = self.action_list[-1]
-
-        data_in = self.node_layer_accumulator[from_here]
-
+        data_in = node_layer_accumulator[from_here]
         data_out = self._modules[action](data_in)
+
         if self.return_before_last_layer_:
             return data_in, data_out
         return data_out
