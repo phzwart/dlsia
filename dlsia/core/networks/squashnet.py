@@ -86,3 +86,16 @@ class FCNetwork(nn.Module):
         if name is None:
             return network_dict
         torch.save(network_dict, name)
+
+def Squashnet_from_file_SMS(filename):
+    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    SMSObj = smsnet.SMSNet(**network_dict["topo_dict_spatial"])
+    SMSObj.load_state_dict(network_dict["state_dict_spatial"])
+
+    FCNet = FCNetwork(**network_dict["topo_dict_squash"])
+    FCNet.load_state_dict(network_dict["state_dict_squash"])
+
+    result = SquashNet(FCNet, SMSObj)
+    return result
+
+
