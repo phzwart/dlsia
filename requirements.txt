@@ -31,3 +31,4 @@ papermill
 umap-learn>=0.5.3
 kaleido
 zarr
+sphinx_rtd_theme
