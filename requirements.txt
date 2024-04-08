@@ -17,12 +17,13 @@ scikit-learn>=0.24.1
 scipy>=1.8.1
 tifffile>=2021.2.26
 torchmetrics>=0.11.0
+qlty>=0.1.7
 typing>=3.7.4.3
 jedi>=0.10
 connected-components-3d
 pytorch-lightning
 nbsphinx
-qlty>=0.1.7
+lxml_html_clean
 nbsphinx-link
 m2r
 papermill
