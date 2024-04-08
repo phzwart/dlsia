@@ -22,6 +22,7 @@ typing>=3.7.4.3
 jedi>=0.10
 connected-components-3d
 pytorch-lightning
+sphinx==7.2.6
 nbsphinx
 lxml_html_clean
 nbsphinx-link
