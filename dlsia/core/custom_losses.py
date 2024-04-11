@@ -426,6 +426,74 @@ class CombinedLossWithTVNorm(nn.Module):
         tv_loss = self.tv_norm(input)
         return base_loss + tv_loss
 
+class CombinedLossWithTVNorm3D(nn.Module):
+    """
+    A custom loss function combining a base loss and total variation (TV) norm regularization.
+
+    Args:
+        base_loss_fn (torch.nn.Module): The base loss function for the primary task.
+        tv_weights (torch.Tensor): Weights to control the impact of the TV regularization on each channel.
+
+    Attributes:
+        tv_weights (torch.Tensor): Weights to control the impact of the TV regularization on each channel.
+        base_loss_fn (torch.nn.Module): The base loss function for the primary task.
+
+    Methods:
+        tv_norm(input_tensor):
+            Calculates the total variation norm regularization for the input tensor.
+
+        forward(input, target):
+            Computes the combined loss with the base loss and TV norm regularization.
+
+    Example:
+        base_loss_fn = torch.nn.MSELoss()
+        tv_weights = torch.tensor([0.1, 0.2, 0.3])  # Example TV weights for 3 channels
+        combined_loss = CombinedLossWithTVNorm(base_loss_fn, tv_weights)
+    """
+
+    def __init__(self, base_loss_fn, tv_weights):
+        super(CombinedLossWithTVNorm3D, self).__init__()
+        self.tv_weights = tv_weights
+        self.base_loss_fn = base_loss_fn
+
+    def tv_norm(self, input_tensor):
+        """
+        Calculate the total variation norm regularization for the input tensor.
+
+        Args:
+            input_tensor (torch.Tensor): The input tensor to compute the TV norm for.
+
+        Returns:
+            torch.Tensor: The total variation norm regularization.
+        """
+        batch_size, channels, z, y, x = input_tensor.shape
+        sm = nn.Softmax(dim=1)
+        sm_input_tensor = sm(input_tensor)
+        diff_i = torch.abs(sm_input_tensor[:, :, 1:, :, :] - sm_input_tensor[:, :, :-1, :, :])
+        diff_j = torch.abs(sm_input_tensor[:, :, :, 1:, :] - sm_input_tensor[:, :, :, :-1, :])
+        diff_k = torch.abs(sm_input_tensor[:, :, :, :, 1:] - sm_input_tensor[:, :, :, :, :-1])
+
+        # Applying the weights for each channel
+        diff_i = (diff_i * self.tv_weights.view(1, channels, 1, 1, 1)).sum()
+        diff_j = (diff_j * self.tv_weights.view(1, channels, 1, 1, 1)).sum()
+        diff_k = (diff_k * self.tv_weights.view(1, channels, 1, 1, 1)).sum()
+
+        return (diff_i + diff_j + diff_k) / (batch_size * z * y * x)
+
+    def forward(self, input, target):
+        """
+        Compute the combined loss with the base loss and TV norm regularization.
+
+        Args:
+            input (torch.Tensor): The model's predicted output.
+            target (torch.Tensor): The ground truth target.
+
+        Returns:
+            torch.Tensor: The combined loss with base loss and TV norm regularization.
+        """
+        base_loss = self.base_loss_fn(input, target)
+        tv_loss = self.tv_norm(input)
+        return base_loss + tv_loss
 
 def tst():
     """

@@ -105,7 +105,95 @@ class model_baggin(nn.Module):
             if not return_std:
                 return mean
             return mean, std / np.sqrt(N)
-        
+
+
+def estimate_quantiles_with_bootstrap_adaptive(tensor, quantiles, num_samples=100, noise_scale=0.01):
+    """
+    Estimate quantiles for each element across the axis C of a tensor using a smooth bootstrap approach.
+    The noise scale is adaptive, based on the standard deviation of each channel, scaled by the provided noise_scale.
+
+    :param tensor: Input tensor of shape N, C, Y, X or N, C, Z, Y, X.
+    :param quantiles: A list of quantiles to compute, each a float between 0 and 1.
+    :param num_samples: Number of bootstrap samples to generate.
+    :param noise_scale: Scaling factor for the standard deviation-based noise.
+    :return: A tensor of quantiles with one less dimension than the input (quantiles replace the C dimension).
+    """
+    # Validate tensor dimensionality
+    assert tensor.dim() in [4, 5], "Input tensor should have 4 or 5 dimensions (N, C, Y, X or N, C, Z, Y, X)"
+
+    # Determine the shape for the output tensor, excluding the 'C' dimension
+    output_shape = (len(quantiles), *tensor.shape[0:1], *tensor.shape[2:])
+
+    # Initialize tensor to store bootstrap sample quantiles
+    bootstrap_quantiles = torch.zeros((num_samples, *output_shape), dtype=tensor.dtype, device=tensor.device)
+
+    # Calculate standard deviation for each channel
+    stdevs = torch.std(tensor, dim=(0, *range(2, tensor.dim())), keepdim=True)
+
+    for i in range(num_samples):
+        # Generate noise based on the channel-wise standard deviation
+        noise = torch.randn_like(tensor) * stdevs * noise_scale
+        noisy_tensor = tensor + noise
+
+        # Compute and store quantiles for the noisy tensor
+        bootstrap_quantiles[i] = torch.quantile(noisy_tensor, torch.tensor(quantiles, dtype=tensor.dtype, device=tensor.device), dim=1, keepdim=False)
+
+    # Aggregate the quantiles across all bootstrap samples
+    final_quantiles = torch.mean(bootstrap_quantiles, dim=0)
+
+    return final_quantiles
+
+
+class model_baggin_univariate_quantiles(nn.Module):
+    """
+    Bagg a number of models
+    """
+
+    def __init__(self, models, quantiles=[0.05, 0.10, 0.25, 0.50,]):
+        """
+        Bag a number of models together and get estimates of the qunatiles
+
+        Parameters
+        ----------
+        models : a list of neural networks
+        model_type : regression or classification
+        returns_normalized : if False and added softmax will be performed if model_type is classification
+        """
+        super(model_baggin, self).__init__()
+
+        self.models = models
+        self.quantiles = quantiles
+
+    def forward(self, x, device="cpu"):
+        """
+        Standard forward model
+
+        Parameters
+        ----------
+        x : input tensor
+        device : where will we do the calculations?
+        return_std: If true the standard deviation will be returned
+
+        Returns
+        -------
+        mean and standard deviation
+        """
+        mean = 0
+        std = 0
+        N = 0
+        results = []
+        x = x.to(device)
+        with torch.no_grad():
+            for model in self.models:
+                N += 1
+                if device != "cpu":
+                    torch.cuda.empty_cache()
+                tmp_result = model.to(device)(x)#.cpu()
+                results.append(tmp_result.unsqueeze(1).cpu())
+            results = torch.cat(results, dim=1)
+
+
+
 
 class autoencoder_labeling_model_baggin(nn.Module):
     """
