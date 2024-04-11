@@ -19,6 +19,29 @@ def construct_2dsms_ensembler(n_networks,
                            network_type="Regression",
                            parameter_counts_only = False
                            ):
+    """
+    Constructs an ensemble of 2D SMS (Sparse Multiscale) networks.
+
+    Parameters:
+    n_networks (int): The number of networks to include in the ensemble.
+    in_channels (int): The number of input channels for the networks.
+    out_channels (int): The number of output channels for the networks.
+    layers (int): The number of layers for each network.
+    alpha (float, optional): Alpha parameter for the LL (lower layer) probabilities. Default is 0.0.
+    gamma (float, optional): Gamma parameter for the LL probabilities. Default is 0.0.
+    hidden_channels (list, optional): The number of hidden channels for each layer. Defaults to [3 * out_channels].
+    dilation_choices (list, optional): The choices of dilation rates. Defaults to [1, 2, 3, 4].
+    P_IL (float, optional): Probability of an internal layer. Default is 0.995.
+    P_LO (float, optional): Probability of a layer being the last one. Default is 0.995.
+    P_IO (bool, optional): Whether the input/output connections are enabled. Default is True.
+    parameter_bounds (tuple, optional): The minimum and maximum parameter bounds for networks. Default is None.
+    max_trial (int, optional): The maximum number of trials to generate a network. Default is 100.
+    network_type (str, optional): The type of network ('Regression' or other types). Default is 'Regression'.
+    parameter_counts_only (bool, optional): Whether to return only the parameter counts instead of the network objects. Default is False.
+
+    Returns:
+    list: A list of constructed networks or their parameter counts if parameter_counts_only is True.
+    """
 
     networks = []
 
@@ -87,7 +110,30 @@ def construct_3dsms_ensembler(n_networks,
                            network_type="Regression",
                            parameter_counts_only = False
                            ):
+    """
+    Constructs an ensemble of 3D SMS (Sparse Multiscale) networks.
 
+    Parameters:
+    n_networks (int): The number of networks to include in the ensemble.
+    in_channels (int): The number of input channels for the networks.
+    out_channels (int): The number of output channels for the networks.
+    layers (int): The number of layers for each network.
+    alpha (float, optional): Alpha parameter for the LL (lower layer) probabilities. Default is 0.0.
+    gamma (float, optional): Gamma parameter for the LL probabilities. Default is 0.0.
+    hidden_channels (list, optional): The number of hidden channels for each layer. Defaults to [3 * out_channels].
+    dilation_choices (list, optional): The choices of dilation rates. Defaults to [1, 2, 3, 4].
+    P_IL (float, optional): Probability of an internal layer. Default is 0.995.
+    P_LO (float, optional): Probability of a layer being the last one. Default is 0.995.
+    P_IO (bool, optional): Whether the input/output connections are enabled. Default is True.
+    parameter_bounds (tuple, optional): The minimum and maximum parameter bounds for networks. Default is None.
+    max_trial (int, optional): The maximum number of trials to generate a network. Default is 100.
+    network_type (str, optional): The type of network ('Regression' or other types). Default is 'Regression'.
+    parameter_counts_only (bool, optional): Whether to return only the parameter counts instead of the network objects. Default is False.
+
+    Returns:
+    list: A list of constructed networks or their parameter counts if parameter_counts_only is True.
+    """
+                             
     networks = []
 
     layer_probabilities = {

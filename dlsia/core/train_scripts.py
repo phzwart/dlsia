@@ -3,7 +3,8 @@ import torch
 import torch.nn.utils
 from dlsia.core import corcoef
 from torchmetrics import F1Score
-
+import pandas as pd
+import logging
 
 def segmentation_metrics(preds, target, missing_label=-1, are_probs=True, num_classes=None):
     """
@@ -264,6 +265,341 @@ def train_segmentation(net, trainloader, validationloader, NUM_EPOCHS,
     net.load_state_dict(best_state_dict)
     return net, results
 
+## 20240320, Trainer() added by xchong ##
+class Trainer():
+    def __init__(self, net, trainloader, validationloader, NUM_EPOCHS,
+                       criterion, optimizer, device, dvclive=None,
+                       savepath=None, saveevery=None,
+                       scheduler=None, show=0,
+                       use_amp=False, clip_value=None):
+
+
+        """
+        Loop through epochs passing images to be segmented on a pixel-by-pixel
+        basis.
+
+        :param net: input network
+        :param trainloader: data loader with training data
+        :param validationloader: data loader with validation data
+        :param NUM_EPOCHS: number of epochs
+        :param criterion: target function
+        :param optimizer: optimization engine
+        :param device: the device where we calculate things
+        :param dvclive: use dvclive object to save metrics
+        :param savepath: filepath in which we save networks intermittently
+        :param saveevery: integer n for saving network every n epochs
+        :param scheduler: an optional schedular. can be None
+        :param show: print stats every n-th epoch
+        :param use_amp: use pytorch automatic mixed precision
+        :param clip_value: value for gradient clipping. Can be None.
+        :return: A network and run summary stats
+        """
+
+        self.net = net
+        self.trainloader = trainloader
+        self.validationloader = validationloader
+        self.NUM_EPOCHS = NUM_EPOCHS
+        self.criterion = criterion
+        self.optimizer = optimizer
+        self.device = device
+        self.dvclive = dvclive
+        self.savepath = savepath
+        self.saveevery = saveevery
+        self.scheduler = scheduler
+        self.show = show
+        self.use_amp = use_amp
+        self.clip_value = clip_value
+
+        self.train_loss = []
+        self.F1_train_trace_micro = []
+        self.F1_train_trace_macro = []
+
+          
+
+        # Skip validation steps if False or None loaded
+        if self.validationloader is False:
+            self.validationloader = None
+        if self.validationloader is not None:
+            self.validation_loss = []
+            self.F1_validation_trace_micro = []
+            self.F1_validation_trace_macro = []
+
+        self.best_score = 1e10
+        self.best_index = 0
+        self.best_state_dict = None
+
+        if self.savepath is not None:
+            if self.saveevery is None:
+                self.saveevery = 1
+
+        self.losses = pd.DataFrame()
+
+    # Save Loss
+    def save_loss(self,
+            epoch,
+            loss,
+            F1_micro,
+            F1_macro,
+            val_loss=None,
+            F1_val_micro=None,
+            F1_val_macro=None,
+            ):
+        if self.validationloader is not None:
+            table = pd.DataFrame(
+                {
+                    'epoch': [epoch],
+                    'loss': [loss], 
+                    'val_loss': [val_loss], 
+                    'F1_micro': [F1_micro], 
+                    'F1_macro': [F1_macro],
+                    'F1_val_micro': [F1_val_micro],
+                    'F1_val_macro': [F1_val_macro]
+                }
+            )
+        
+        else:
+            table = pd.DataFrame(
+                {
+                    'epoch': [epoch],
+                    'loss': [loss], 
+                    'F1_micro': [F1_micro], 
+                    'F1_macro': [F1_macro]
+                }
+            )
+
+        return table
+    
+    # Save metrics by dvclive
+    def save_dvc(self):
+        if self.dvclive is not None:
+            self.dvclive.log_metric("train/loss", self.train_loss[-1])
+            self.dvclive.log_metric("train/F1_micro", self.F1_train_trace_micro[-1])
+            self.dvclive.log_metric("train/F1_macro", self.F1_train_trace_macro[-1])
+            if self.validationloader is not None:
+                self.dvclive.log_metric("val/loss", self.validation_loss[-1])
+                self.dvclive.log_metric("val/F1_micro", self.F1_validation_trace_micro[-1])
+                self.dvclive.log_metric("val/F1_macro", self.F1_validation_trace_macro[-1])
+            self.dvclive.next_step()           
+        return True
+    
+    def train_one_epoch(self, epoch):
+        print(
+                f"*****  memory allocated at epoch {epoch} is {torch.cuda.memory_allocated(0)}"
+        )
+        running_train_loss = 0.0
+        running_F1_train_micro = 0.0
+        running_F1_train_macro = 0.0
+        tot_train = 0.0
+
+        if self.validationloader is not None:
+            running_validation_loss = 0.0
+            running_F1_validation_micro = 0.0
+            running_F1_validation_macro = 0.0
+            tot_val = 0.0
+        count = 0
+
+        for data in self.trainloader:
+            count += 1
+            noisy, target = data  # load noisy and target images
+            N_train = noisy.shape[0]
+            tot_train += N_train
+
+            noisy = noisy.type(torch.FloatTensor)
+            target = target.type(torch.LongTensor)
+            noisy = noisy.to(self.device)
+            target = target.to(self.device)
+
+            if self.criterion.__class__.__name__ == 'CrossEntropyLoss':
+                target = target.type(torch.LongTensor)
+                target = target.to(self.device).squeeze(1)
+
+            if self.use_amp is False:
+                # forward pass, compute loss and accuracy
+                output = self.net(noisy)
+                loss = self.criterion(output, target)
+
+                # backpropagation
+                self.optimizer.zero_grad()
+                loss.backward()
+            else:
+                scaler = torch.cuda.amp.GradScaler()
+                with torch.cuda.amp.autocast():
+                    # forward pass, compute loss and accuracy
+                    output = self.net(noisy)
+                    loss = self.criterion(output, target)
+
+                # backpropagation
+                self.optimizer.zero_grad()
+                scaler.scale(loss).backward()
+
+                # update the parameters
+                scaler.step(self.optimizer)
+                scaler.update()
+
+            # update the parameters
+            if self.clip_value is not None:
+                torch.nn.utils.clip_grad_value_(self.net.parameters(), self.clip_value)
+            self.optimizer.step()
+
+
+            tmp_micro, tmp_macro = segmentation_metrics(output, target)
+
+            running_F1_train_micro += tmp_micro.item()
+            running_F1_train_macro += tmp_macro.item()
+            running_train_loss += loss.item()
+        if self.scheduler is not None:
+            self.scheduler.step()
+
+        # compute validation step
+        if self.validationloader is not None:
+            with torch.no_grad():
+                for x, y in self.validationloader:
+                    x = x.type(torch.FloatTensor)
+                    y = y.type(torch.LongTensor)
+                    x = x.to(self.device)
+                    y = y.to(self.device)
+                    N_val = y.shape[0]
+                    tot_val += N_val
+                    if self.criterion.__class__.__name__ == 'CrossEntropyLoss':
+                        y = y.type(torch.LongTensor)
+                        y = y.to(self.device).squeeze(1)
+
+                    # forward pass, compute validation loss and accuracy
+                    if self.use_amp is False:
+                        yhat = self.net(x)
+                        val_loss = self.criterion(yhat, y)
+                    else:
+                        with torch.cuda.amp.autocast():
+                            yhat = self.net(x)
+                            val_loss = self.criterion(yhat, y)
+
+                    tmp_micro, tmp_macro = segmentation_metrics(yhat, y)
+                    running_F1_validation_micro += tmp_micro.item()
+                    running_F1_validation_macro += tmp_macro.item()
+
+                    # update running validation loss and accuracy
+                    running_validation_loss += val_loss.item()
+
+        loss = running_train_loss / len(self.trainloader)
+        F1_micro = running_F1_train_micro / len(self.trainloader)
+        F1_macro = running_F1_train_macro / len(self.trainloader)
+        self.train_loss.append(loss)
+        self.F1_train_trace_micro.append(F1_micro)
+        self.F1_train_trace_macro.append(F1_macro)
+
+        val_loss = None
+        if self.validationloader is not None:
+            val_loss = running_validation_loss / len(self.validationloader)
+            F1_val_micro = running_F1_validation_micro / len(self.validationloader)
+            F1_val_macro = running_F1_validation_macro / len(self.validationloader)
+            self.validation_loss.append(val_loss)
+            self.F1_validation_trace_micro.append(F1_val_micro)
+            self.F1_validation_trace_macro.append(F1_val_macro)
+
+        print(f'Epoch: {epoch}')
+
+        # Note: This is a very temporary solution to address the single frame mask case.
+        if self.validationloader is None:
+            F1_val_micro = None
+            F1_val_macro = None
+
+        table = self.save_loss(
+                epoch,
+                loss,
+                F1_micro,
+                F1_macro,
+                val_loss=val_loss,
+                F1_val_micro=F1_val_micro,
+                F1_val_macro=F1_val_macro,
+                )
+        
+        self.losses = pd.concat([self.losses, table])
+       
+
+        if self.show != 0:
+            learning_rates = []
+            for param_group in self.optimizer.param_groups:
+                learning_rates.append(param_group["lr"])
+            mean_learning_rate = np.mean(np.array(learning_rates))
+            if np.mod(epoch + 1, self.show) == 0:
+                if self.validationloader is not None:
+                    logging.info(
+                        f"Epoch {epoch + 1} of {self.NUM_EPOCHS} | Learning rate {mean_learning_rate:4.3e}"
+                    )
+                    logging.info(
+                        f"   Training Loss: {loss:.4e} | Validation Loss: {val_loss:.4e}"
+                    )
+                    logging.info(
+                        f"   Micro Training F1: {F1_micro:.4f} | Micro Validation F1: {F1_val_micro:.4f}"
+                    )
+                    logging.info(
+                        f"   Macro Training F1: {F1_macro:.4f} | Macro Validation F1: {F1_val_macro:.4f}"
+                    )
+                else:
+                    logging.info(
+                        f"Epoch {epoch + 1} of {self.NUM_EPOCHS} | Learning rate {mean_learning_rate:4.3e}"
+                    )
+                    logging.info(
+                        f"   Training Loss: {loss:.4e} | Micro Training F1: {F1_micro:.4f} "
+                        + "| Macro Training F1: {F1_macro:.4f}"
+                    )
+
+        if epoch == 0:
+            self.best_state_dict = self.net.state_dict()
+            if self.validationloader is not None:
+                self.best_score = val_loss
+            else:
+                self.best_score = loss
+
+        if self.validationloader is not None:
+            if val_loss < self.best_score:
+                self.best_state_dict = self.net.state_dict()
+                self.best_index = epoch
+                self.best_score = val_loss
+        else:
+            if loss < self.best_score:
+                self.best_state_dict = self.net.state_dict()
+                self.best_index = epoch
+                self.best_score = loss
+
+            if self.savepath is not None:
+                torch.save(self.best_state_dict, self.savepath + "/net_best")
+                logging.info("Best network found and saved")
+                logging.info("")
+
+        if self.savepath is not None:
+            if np.mod(epoch + 1, self.saveevery) == 0:
+                torch.save(self.net.state_dict(), self.savepath + "/net_checkpoint")
+                logging.info("Network intermittently saved")
+                logging.info("")
+
+        return True
+
+    def train_segmentation(self):
+
+        for epoch in range(self.NUM_EPOCHS):
+            self.train_one_epoch(epoch)
+            self.save_dvc()
+            
+        if self.validationloader is None:
+            self.validation_loss = []
+            self.F1_validation_trace_micro = []
+            self.F1_validation_trace_macro = []
+
+        results = {
+            "Training loss": self.train_loss,
+            "Validation loss": self.validation_loss,
+            "F1 training micro": self.F1_train_trace_micro,
+            "F1 training macro": self.F1_train_trace_macro,
+            "F1 validation micro": self.F1_validation_trace_micro,
+            "F1 validation macro": self.F1_validation_trace_macro,
+            "Best model index": self.best_index,
+        }
+
+        self.net.load_state_dict(self.best_state_dict)
+        self.losses.to_parquet(self.savepath + "/losses.parquet", engine="pyarrow")
+        return self.net, results
+## 20240320, Trainer() class added by xchong ##
 
 train_labeling = train_segmentation
 
