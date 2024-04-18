@@ -604,7 +604,7 @@ class Trainer():
 train_labeling = train_segmentation
 
 
-def regression_metrics(preds, target):
+def regression_metrics_old(preds, target):
     """
     Compute a pearson correlation coefficient.
     Useful for validating / understanding regression performance
@@ -621,6 +621,39 @@ def regression_metrics(preds, target):
 
     tmp = corcoef.cc(preds.cpu().flatten(), target.cpu().flatten())
     return tmp
+
+def regression_metrics(preds, target, this_index=1):
+    """
+    Compute a Pearson correlation coefficient.
+    Useful for validating / understanding regression performance.
+
+    When `preds` is a tuple, the function uses `preds[this_index]` for calculations.
+
+    Parameters
+    ----------
+    preds : Predicted values (Tensor or tuple of Tensors)
+    target : Target values (Tensor)
+    this_index : int, optional
+        The index of the prediction to use when `preds` is a tuple. Default is 1.
+
+    Returns
+    -------
+    float
+        A correlation coefficient
+    """
+    # Check if preds is a tuple and select the appropriate prediction
+    if isinstance(preds, tuple):
+        preds = preds[this_index]
+
+    # Ensure the tensors are on the same device and are flattened
+    preds = preds.cpu().flatten()
+    target = target.cpu().flatten()
+
+    # Calculate the Pearson correlation coefficient
+    correlation_coefficient = torch.corrcoef(torch.stack([preds, target]))[0, 1]
+
+    return correlation_coefficient
+
 
 
 def train_regression(net, trainloader, validationloader, NUM_EPOCHS,

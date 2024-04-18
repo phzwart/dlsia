@@ -1,6 +1,7 @@
 import numpy as np
 import torch
 from torch import nn
+import torch.distributions as dist
 
 def arithmetic_mean_std(results):
     """
@@ -38,12 +39,69 @@ def geometric_mean_std(results, eps=1e-12):
     s = torch.exp(s)
     return m,s
 
+def generate_moments(results):
+    """
+    Computes four centralized moments
+
+    Parameters
+    ----------
+    results : an tensor with results. we average over channel 1
+
+    Returns
+    -------
+    The first 4 centralized moments,
+
+    """
+    m = torch.mean( results, dim = 1)
+    s = torch.std(results, dim=1)
+    return m, s
+
+def calculate_skewness_and_kurtosis(data):
+    # Calculate mean and standard deviation along dimension 1
+    mean = torch.mean(data, dim=1, keepdim=True)
+    std_dev = torch.std(data, dim=1, unbiased=True, keepdim=True)
+
+    # Calculate third and fourth central moments
+    deviations = data - mean
+    third_moment = torch.mean(deviations**3, dim=1)
+    fourth_moment = torch.mean(deviations**4, dim=1)
+
+    # Correcting the bias in skewness and kurtosis
+    n = data.size(1)
+    skewness = (n / ((n - 1) * (n - 2))) * third_moment / (std_dev.squeeze(1)**3)
+    kurtosis = (n * (n + 1) / ((n - 1) * (n - 2) * (n - 3))) * fourth_moment / (std_dev.squeeze(1)**4) - (3 * (n - 1)**2 / ((n - 2) * (n - 3)))
+
+    return mean.squeeze(1), std_dev.squeeze(1), skewness, kurtosis
+
+def cornish_fisher_expansion(data, quantiles=[0.05, 0.95]):
+    mean, std, skewness, kurtosis = calculate_skewness_and_kurtosis(data)
+
+    # Calculate the Cornish-Fisher expansion for each quantile
+    cf_quantiles = []
+    for q in quantiles:
+        z = dist.Normal(0, 1).icdf(torch.tensor(q))  # Get the z-score using PyTorch's distributions
+
+        # Calculate the adjusted z-score using the Cornish-Fisher expansion
+        z_adj = z + (1/6) * (z**2 - 1) * skewness + (1/24) * (z**3 - 3*z) * kurtosis - (1/36) * (2*z**3 - 5*z) * skewness**2
+
+        # Convert the adjusted z-score to the actual quantile value in the data distribution
+        cf_quantile = mean + z_adj * std
+        cf_quantiles.append(cf_quantile)
+
+    return mean, std, torch.stack(cf_quantiles, dim=1)  # Return stacked results
+
+
 class model_baggin(nn.Module):
     """
     Bagg a number of models
     """
 
-    def __init__(self, models, model_type='classification', returns_normalized=False, average_type="arithmetic"):
+    def __init__(self, models,
+                 model_type='classification',
+                 returns_normalized=False,
+                 average_type="arithmatic",
+                 quantiles=[0.05, 0.95]
+                 ):
         """
         Bag a number of models together and get a mean and std estimate
 
@@ -63,9 +121,13 @@ class model_baggin(nn.Module):
         else:
             self.mean_std_calculator = arithmetic_mean_std
 
+        self.quantiles = quantiles
+
+
+
         assert self.model_type in ["regression", "classification"]
 
-    def forward(self, x, device="cpu", return_std=False):
+    def forward(self, x, device="cpu", return_std=False, return_quantile=False):
         """
         Standard forward model
 
@@ -79,6 +141,7 @@ class model_baggin(nn.Module):
         -------
         mean and standard deviation
         """
+
         mean = 0
         std = 0
         N = 0
@@ -96,15 +159,25 @@ class model_baggin(nn.Module):
                 results.append(tmp_result.unsqueeze(1).cpu())
                 #model.cpu()
             results = torch.cat(results, dim=1)
-            mean, std = self.mean_std_calculator(results)
+            if return_std:
+                mean, std = self.mean_std_calculator(results)
+            if return_quantile:
+                mean,std,quantiles = cornish_fisher_expansion(data=results, quantiles=self.quantiles)
+                return mean, std, quantiles
 
             if self.model_type == "classification":
-                norma = torch.sum(mean, dim=1).unsqueeze(1)
-                mean = mean / norma
-                std = std / norma
-            if not return_std:
-                return mean
-            return mean, std / np.sqrt(N)
+                if not return_quantile:
+                    norma = torch.sum(mean, dim=1).unsqueeze(1)
+                    mean = mean / norma
+                    std = std / norma
+                    if not return_std:
+                        return mean
+                    return mean, std / np.sqrt(N)
+                else:
+                    print("HOPPA")
+                    mean,std,quantiles = cornish_fisher_expansion(data=results,
+                                                                  quantiles=self.quantiles)
+                    return mean, std, quantiles
 
 
 class autoencoder_labeling_model_baggin(nn.Module):
