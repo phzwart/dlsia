@@ -3,36 +3,86 @@ from torch import nn
 import einops
 from collections import OrderedDict
 
+
 class FCNetwork(nn.Module):
-    def __init__(self, Cin, Cmiddle, Cout, dropout_rate=0.0):
+    def __init__(self,
+                 Cin,
+                 Cmiddle,
+                 Cout,
+                 dropout_rate=0.0,
+                 skip_connections=True,
+                 o_channels=0
+                 ):
+
         super(FCNetwork, self).__init__()
 
         self.Cin = Cin
         self.Cmiddle = Cmiddle
         self.Cout = Cout
         self.dropout_rate = dropout_rate
+        self.skip_connections = skip_connections
+        self.o_channels = o_channels
+
+        linear_layer = nn.Linear # needed for monotonic networks. will use later keep it eventhough ugly.
 
         layers = []
-        layers.append(nn.Linear(self.Cin, self.Cmiddle[0]))
+
+        layers.append(linear_layer(self.Cin+self.o_channels, self.Cmiddle[0]))
         layers.append(nn.BatchNorm1d(self.Cmiddle[0]))
         layers.append(nn.ReLU())
         layers.append(nn.Dropout(self.dropout_rate))
 
         for i in range(len(self.Cmiddle)-1):
-            layers.append(nn.Linear(self.Cmiddle[i], self.Cmiddle[i+1]))
+            layers.append(linear_layer(self.Cmiddle[i]+self.o_channels, self.Cmiddle[i+1]))
             layers.append(nn.BatchNorm1d(self.Cmiddle[i+1]))
             layers.append(nn.ReLU())
             layers.append(nn.Dropout(self.dropout_rate))
 
-        layers.append(nn.Linear(self.Cmiddle[-1], self.Cout))
+        layers.append(linear_layer(self.Cmiddle[-1]+self.o_channels, self.Cout))
         self.network = nn.Sequential(*layers)
 
-    def forward(self, x):
-        N,C,Y,X = x.shape
+    def forward2d(self, x, o=None):
+        Nx,Cx,Yx,Xx = x.shape
         x = einops.rearrange(x, "N C Y X -> (N Y X) C")
-        x = self.network(x)
-        x = einops.rearrange(x, "(N Y X) C -> N C Y X", N=N, Y=Y, X=X)
+        if o is not None:
+            No, Co, Yo, Xo = o.shape
+            assert No == Nx
+            assert Yo == Yx
+            assert Xo == Xx
+            o = einops.rearrange(o, "N C Y X -> (N Y X) C")
+
+        for i, layer in enumerate(self.network):
+            if isinstance(layer, nn.Linear):
+                if self.skip_connections:
+                    x = torch.cat((x, o), dim=-1)
+            x = layer(x)
+        x = einops.rearrange(x, "(N Y X) C -> N C Y X", N=Nx, Y=Yx, X=Xx)
         return x
+
+    def forward3d(self, x, o=None):
+        Nx,Cx,Zx,Yx,Xx = x.shape
+        x = einops.rearrange(x, "N C Z Y X -> (N Z Y X) C")
+        if o is not None:
+            No, Co, Yo, Xo = o.shape
+            assert No == Nx
+            assert Yo == Yx
+            assert Xo == Xx
+            o = einops.rearrange(o, "N C Z Y X -> (N Z Y X) C")
+
+        for i, layer in enumerate(self.network):
+            if isinstance(layer, nn.Linear):
+                if self.skip_connections:
+                    x = torch.cat((x, o), dim=-1)
+            x = layer(x)
+        x = einops.rearrange(x, "(N Z Y X) C -> N C Z Y X", N=Nx, Z=Zx, Y=Yx, X=Xx)
+        return x
+
+
+    def forward(self, x, o=None):
+        if len(x.shape) == 4:
+            return self.forward2d(x, o)
+        if len(x.shape) == 5:
+            return self.forward3d(x, o)
 
     def topology_dict(self):
         topo = OrderedDict()
@@ -40,6 +90,9 @@ class FCNetwork(nn.Module):
         topo["Cmiddle"] = self.Cmiddle
         topo["Cout"] = self.Cout
         topo["dropout_rate"] = self.dropout_rate
+        topo["skip_connections"] = self.skip_connections
+        topo["o_channels"] = self.o_channels
+
         return topo
 
     def save_network_parameters(self, name=None):

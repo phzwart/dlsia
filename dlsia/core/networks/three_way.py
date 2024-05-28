@@ -13,7 +13,8 @@ class ThreeWay(nn.Module):
                  dropout = 0.0,
                  clip_low = None,
                  clip_high = None,
-                 final_action = None
+                 final_action = None,
+                 skip_connections=True
                  ):
         super(ThreeWay, self).__init__()
         self.in_channels = in_channels
@@ -23,6 +24,7 @@ class ThreeWay(nn.Module):
         self.dropout = dropout
         self.projection_layers = projection_layers
         self.final_action = final_action
+        self.skip_connections = skip_connections
 
         if clip_low is not None:
             self.register_buffer('clip_low', clip_low)
@@ -38,28 +40,43 @@ class ThreeWay(nn.Module):
             self.projection_layers = [ int(out_channels+self.intermediate_channels)//2 ]
 
         # projection head for the lower quantile
+        tmp_in = 0
+        if self.skip_connections:
+            tmp_in = self.in_channels
         self.head_m1 = FCNetwork(self.intermediate_channels,
                                  self.projection_layers,
                                  self.out_channels,
-                                 dropout_rate=dropout)
+                                 dropout_rate=dropout,
+                                 skip_connections=self.skip_connections,
+                                 o_channels = tmp_in
+                                 )
 
         # projection head for the median
         self.head_0 = FCNetwork(self.intermediate_channels,
                                  self.projection_layers,
                                  self.out_channels,
-                                 dropout_rate=dropout)
+                                 dropout_rate=dropout,
+                                 skip_connections=self.skip_connections,
+                                 o_channels = tmp_in)
 
         # projection head for the upper quantile
         self.head_p1 = FCNetwork(self.intermediate_channels,
                                  self.projection_layers,
                                  self.out_channels,
-                                 dropout_rate=dropout)
+                                 dropout_rate=dropout,
+                                 skip_connections=self.skip_connections,
+                                 o_channels = tmp_in)
 
-    def forward(self, x):
-        x = self.base_network(x)
-        lower_quantile_adjustment = F.softplus(self.head_m1(x))
-        median = self.head_0(x)
-        upper_quantile_adjustement = F.softplus(self.head_p1(x))
+    def forward(self, o):
+        x = self.base_network(o)
+        if self.skip_connections:
+            pass
+        else:
+            o = None
+
+        lower_quantile_adjustment = F.softplus(self.head_m1(x,o))
+        median = self.head_0(x,o)
+        upper_quantile_adjustement = F.softplus(self.head_p1(x,o))
 
         lower_quantile = median - lower_quantile_adjustment
         upper_quantile = median + upper_quantile_adjustement
@@ -81,10 +98,27 @@ class ThreeWay(nn.Module):
 
         return lower_quantile, median, upper_quantile
 
+    def save_network_parameters(self, name=None):
+        """
+        Save the network parameters
+        :param name: The filename
+        :type name: str
+        :return: None
+        :rtype: None
+        """
+        network_dict = OrderedDict()
+        network_dict["base_network"] = self.squash_head.topology_dict()
+        network_dict["head_m1"] = self.squash_head.topology_dict()
+        network_dict["head_0"] = self.squash_head.topology_dict()
+        network_dict["head_p1"] = self.squash_head.topology_dict()
+
+        if name is None:
+            return network_dict
+        torch.save(network_dict, name)
 
 
 class RandomizedPinballLoss(nn.Module):
-    def __init__(self, quantiles, biases=None):
+    def __init__(self, quantiles, biases=None, channel_weights=None):
         """ Initialize the Randomized Pinball Loss module.
 
         Args:
@@ -95,6 +129,7 @@ class RandomizedPinballLoss(nn.Module):
         assert len(quantiles) == len(biases) if biases else True, "Length of quantiles must match length of biases"
         self.quantiles = quantiles
         self.biases = biases if biases else [1] * len(quantiles)  # Equal probability if no biases are provided
+        self.channel_weights = None
 
     def forward(self, predictions, y_true):
         """ Calculate the randomized pinball loss.
@@ -116,10 +151,10 @@ class RandomizedPinballLoss(nn.Module):
         selected_prediction = predictions[index]
 
         # Compute pinball loss for the selected quantile
-        return self.pinball_loss(y_true, selected_prediction, selected_quantile)
+        return self.pinball_loss(y_true, selected_prediction, selected_quantile, self.channel_weights)
 
     @staticmethod
-    def pinball_loss(y_true, y_pred, tau):
+    def pinball_loss(y_true, y_pred, tau, channel_weights=None):
         """ Calculate the pinball loss for a single quantile.
 
         Args:
@@ -131,6 +166,8 @@ class RandomizedPinballLoss(nn.Module):
             Tensor: The pinball loss.
         """
         errors = y_true - y_pred
+        if channel_weights is not None:
+            errors = errors * channel_weights
         return torch.mean(torch.maximum(tau * errors, (tau - 1) * errors))
 
 
