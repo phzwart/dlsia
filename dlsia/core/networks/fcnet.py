@@ -63,7 +63,7 @@ class FCNetwork(nn.Module):
         Nx,Cx,Zx,Yx,Xx = x.shape
         x = einops.rearrange(x, "N C Z Y X -> (N Z Y X) C")
         if o is not None:
-            No, Co, Yo, Xo = o.shape
+            No, Co, Zo, Yo, Xo = o.shape
             assert No == Nx
             assert Yo == Yx
             assert Xo == Xx
