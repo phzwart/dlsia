@@ -865,12 +865,16 @@ def SMSNetwork_from_file(filename):
     """
     Construct an SMSNet from a file with network parameters
 
-    :param filename: the filename
+    :param filename: the filename or OrderedDict
     :type filename: str
     :return: An SMSNet
     :rtype: SMSNet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    if isinstance(filename, OrderedDict):
+        network_dict = filename
+    else:
+        network_dict = torch.load(filename, map_location=torch.device('cpu'))
+
     SMSObj = SMSNet(**network_dict["topo_dict"])
     SMSObj.load_state_dict(network_dict["state_dict"])
     return SMSObj

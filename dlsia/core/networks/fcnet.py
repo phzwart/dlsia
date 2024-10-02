@@ -41,6 +41,14 @@ class FCNetwork(nn.Module):
         layers.append(linear_layer(self.Cmiddle[-1]+self.o_channels, self.Cout))
         self.network = nn.Sequential(*layers)
 
+    def forward1d(self, x, o=None):
+        for i, layer in enumerate(self.network):
+            if isinstance(layer, nn.Linear):
+                if self.skip_connections:
+                    x = torch.cat((x, o), dim=-1)
+            x = layer(x)
+        return x
+
     def forward2d(self, x, o=None):
         Nx,Cx,Yx,Xx = x.shape
         x = einops.rearrange(x, "N C Y X -> (N Y X) C")
@@ -83,6 +91,8 @@ class FCNetwork(nn.Module):
             return self.forward2d(x, o)
         if len(x.shape) == 5:
             return self.forward3d(x, o)
+        if len(x.shape) == 2:
+            return self.forward1d(x, o)
 
     def topology_dict(self):
         topo = OrderedDict()
@@ -102,3 +112,12 @@ class FCNetwork(nn.Module):
         if name is None:
             return network_dict
         torch.save(network_dict, name)
+
+def FCNetwork_from_file(filename):
+    if isinstance(filename, OrderedDict):
+        network_dict = filename
+    else:
+        network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    result = FCNetwork(**network_dict["topo_dict"])
+    result.load_state_dict(network_dict["state_dict"])
+    return result
