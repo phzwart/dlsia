@@ -625,11 +625,13 @@ def TUNetwork_from_file(filename):
     :return: An SMSNet
     :rtype: SMSNet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    if isinstance(filename, OrderedDict):
+        network_dict = filename
+    else:
+        network_dict = torch.load(filename, map_location=torch.device('cpu'))
     TUNetObj = TUNet(**network_dict["topo_dict"])
     TUNetObj.load_state_dict(network_dict["state_dict"])
     return TUNetObj
-
 
 def tst():
     a = 128

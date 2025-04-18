@@ -30,7 +30,7 @@ import random
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from dlsia.core.networks import smsnet, fcnet
+from dlsia.core.networks import smsnet, fcnet, tunet
 from collections import OrderedDict
 
 
@@ -505,6 +505,56 @@ def cerberus_sms_from_file(filename):
 
     # Instantiate networks from saved parameters
     base_network = smsnet.SMSNetwork_from_file(network_dict["base_network"])
+    lower = fcnet.FCNetwork_from_file(network_dict["head_m1"])
+    median = fcnet.FCNetwork_from_file(network_dict["head_0"])
+    upper = fcnet.FCNetwork_from_file(network_dict["head_p1"])
+
+    # Check for partial feature projector
+    partial_feature_projector = None
+    if "partial_feature_projector" in network_dict:
+        partial_feature_projector = PartialFeatureProjector_from_file(
+            network_dict["partial_feature_projector"])
+
+    # Instantiate the Cerberus class
+    result = Cerberus(
+        in_channels=network_dict["in_channels"],
+        out_channels=network_dict["out_channels"],
+        projection_layers=network_dict["projection_layers"],
+        dropout=network_dict["dropout"],
+        clip_low=network_dict["clip_low"],
+        clip_high=network_dict["clip_high"],
+        final_action=network_dict["final_action"],
+        skip_connections=network_dict["skip_connections"],
+        base_network=base_network,
+        net_lower_quantile=lower,
+        net_median=median,
+        net_upper_quantile=upper,
+        partial_feature_projector=partial_feature_projector
+    )
+    return result
+
+
+
+
+def cerberus_unet_from_file(filename):
+    """
+    Load a Cerberus model from a saved file.
+
+    Parameters:
+    -----------
+    filename : str
+        Path to the file containing the saved model.
+
+    Returns:
+    --------
+    Cerberus
+        An instance of the Cerberus model initialized from the saved
+        parameters.
+    """
+    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+
+    # Instantiate networks from saved parameters
+    base_network = tunet.TUNetwork_from_file(network_dict["base_network"])
     lower = fcnet.FCNetwork_from_file(network_dict["head_m1"])
     median = fcnet.FCNetwork_from_file(network_dict["head_0"])
     upper = fcnet.FCNetwork_from_file(network_dict["head_p1"])
