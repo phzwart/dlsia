@@ -13,8 +13,14 @@ dlsia: Deep Learning for Scientific Image Analysis
 ------------------
 * Bug fixes and minor updates
 
-0.3.1 (2023-01-26)
+0.3.1 (2023-01-26) 
 ------------------
 * New way to train networks
 * Bug fixes
 * Updated doc issues
+
+0.3.2 (2025-04-17)
+------------------
+* Bug fixes
+* Updated doc issues
+* Added Cerberus
