@@ -38,7 +38,7 @@ class SquashNet(nn.Module):
 
 
 def Squashnet_from_file_SMS(filename):
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     SMSObj = smsnet.SMSNet(**network_dict["topo_dict_spatial"])
     SMSObj.load_state_dict(network_dict["state_dict_spatial"])
 

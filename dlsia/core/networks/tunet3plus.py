@@ -948,7 +948,7 @@ def TUNetwork3Plus_from_file(filename):
     :return: An SMSNet
     :rtype: SMSNet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     TUNet3PlusObj = TUNet3Plus(**network_dict["topo_dict"])
     TUNet3PlusObj.load_state_dict(network_dict["state_dict"])
     return TUNet3PlusObj

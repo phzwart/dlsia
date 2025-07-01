@@ -516,7 +516,7 @@ def SMSNetwork3D_from_file(filename):
     :return: An SMSNet
     :rtype: smsnet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     SMSObj = SMSNet3D(**network_dict["topo_dict"])
     SMSObj.load_state_dict(network_dict["state_dict"])
     return SMSObj

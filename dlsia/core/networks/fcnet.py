@@ -117,7 +117,7 @@ def FCNetwork_from_file(filename):
     if isinstance(filename, OrderedDict):
         network_dict = filename
     else:
-        network_dict = torch.load(filename, map_location=torch.device('cpu'))
+        network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     result = FCNetwork(**network_dict["topo_dict"])
     result.load_state_dict(network_dict["state_dict"])
     return result

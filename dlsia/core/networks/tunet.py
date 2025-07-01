@@ -628,7 +628,7 @@ def TUNetwork_from_file(filename):
     if isinstance(filename, OrderedDict):
         network_dict = filename
     else:
-        network_dict = torch.load(filename, map_location=torch.device('cpu'))
+        network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     TUNetObj = TUNet(**network_dict["topo_dict"])
     TUNetObj.load_state_dict(network_dict["state_dict"])
     return TUNetObj

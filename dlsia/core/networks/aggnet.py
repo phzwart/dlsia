@@ -75,7 +75,7 @@ def AggNet_from_file(filename):
     :return: The Aggnet of interest
     :rtype: AggregateNet
     """
-    network_params = torch.load(filename)
+    network_params = torch.load(filename, weights_only=False)
     obj = AggregateNet(**network_params["topo_dict"])
     obj.load_state_dict(network_params["state_dict"])
     return obj

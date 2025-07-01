@@ -73,7 +73,7 @@ def aggregate_preprocessor_from_file(filename):
     :return: an aggregate preprocessor
     :rtype: aggregate_model_preprocessor
     """
-    params = torch.load(filename)
+    params = torch.load(filename, weights_only=False)
     obj = aggregate_model_preprocessor(params)
     return obj
 

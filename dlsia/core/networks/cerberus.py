@@ -204,7 +204,7 @@ def PartialFeatureProjector_from_file(filename):
     if isinstance(filename, OrderedDict):
         param_dict = filename
     else:
-        param_dict = torch.load(filename, map_location=torch.device('cpu'))
+        param_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     result = PartialFeatureProjector(**param_dict)
     return result
@@ -501,7 +501,7 @@ def cerberus_sms_from_file(filename):
         An instance of the Cerberus model initialized from the saved
         parameters.
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     # Instantiate networks from saved parameters
     base_network = smsnet.SMSNetwork_from_file(network_dict["base_network"])
@@ -551,7 +551,7 @@ def cerberus_unet_from_file(filename):
         An instance of the Cerberus model initialized from the saved
         parameters.
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     # Instantiate networks from saved parameters
     base_network = tunet.TUNetwork_from_file(network_dict["base_network"])

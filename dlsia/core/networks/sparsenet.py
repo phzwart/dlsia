@@ -186,7 +186,7 @@ def SparseLabeler_from_file(filename):
     :return: An SMSNet
     :rtype: smsnet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     encoder = smsnet.SMSNet(**network_dict["encoder"])
     SPL = SparseLabeler(encoder=encoder, **network_dict["topo_dict"])
@@ -420,7 +420,7 @@ def SparseAEC_from_file(filename):
     :return: An SparseAEC
     :rtype: SparseAEC
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     encoder = smsnet.SMSNet(**network_dict["encode"]["topo_dict"])
     decoder = smsnet.SMSNet(**network_dict["decode"]["topo_dict"])
@@ -669,7 +669,7 @@ def SparseAutoEncoder_from_file(filename):
     :return: An SparseAEC
     :rtype: SparseAEC
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
 
     encoder = smsnet.SMSNet(**network_dict["encode"]["topo_dict"])
     decoder = smsnet.SMSNet(**network_dict["decode"]["topo_dict"])

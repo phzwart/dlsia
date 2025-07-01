@@ -328,7 +328,7 @@ def MSDNet2_from_file(filename):
     :return: An Autoencoder
     :rtype: Autoencoder
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     msdnet2_obj = MSDNet2(**network_dict["topo_dict"])
     msdnet2_obj.load_state_dict(network_dict["state_dict"])
     return msdnet2_obj

@@ -1,6 +1,6 @@
 setuptools>=62.2.0
 numpy>=1.23
-torch>=1.11
+torch>=1.13
 torchsummary>=1.5.1
 torchvision>=0.13
 matplotlib>=3.6.3

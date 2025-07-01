@@ -345,7 +345,7 @@ def MSDNetwork_from_file(filename):
     :return: An SMSNet
     :rtype: SMSNet
     """
-    network_dict = torch.load(filename, map_location=torch.device('cpu'))
+    network_dict = torch.load(filename, map_location=torch.device('cpu'), weights_only=False)
     MSDObj = MixedScaleDenseNetwork(**network_dict["topo_dict"])
     MSDObj.load_state_dict(network_dict["state_dict"])
     return MSDObj
